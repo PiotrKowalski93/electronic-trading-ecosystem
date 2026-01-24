@@ -2,7 +2,7 @@
 
 Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh
 
-![Alt text](./.docs/TradingSystemSimpleArch.png)
+![Alt text](./.docs/TradingSystemSimpleArchDiagram.png)
 
 ### Market Data Publisher
 
