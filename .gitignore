@@ -422,6 +422,8 @@ FodyWeavers.xsd
 */build-*/*
 /out/
 /cmake-build-*/
+/build-debug
+/build-debug/*
 
 sockets/build/*
 logger/build/*
@@ -453,5 +455,5 @@ vgcore.*
 .idea/
 .DS_Store
 
-/logger/build
 *.Identifier
+/build-debug
