@@ -39,4 +39,31 @@ namespace Exchange {
 
         return "UNKNOWN";
     }
+
+    struct MEMarketUpdate {
+        MarketUpdateType type_ = MarketUpdateType::INVALID;
+
+        OrderId orderId_ = OrderId_INVALID;
+        TickerId tickerId_ = TickerId_INVALID;
+        Side side_ = Side::INVALID;
+        Price price_ = Price_INVALID;
+        Qty qty_ = Qty_INVALID;
+        Priority priority_ = Priority_INVALID;
+
+        auto toString() const -> std::string {
+            std::stringstream stream;
+            stream << "MEMarketUpdate"
+            << " ["
+            << "type:" << marketUpdateTypeToString(type_)
+            << " oid: " << orderIdToString(orderId_)
+            << " ticker: " << tickerIdToString(tickerId_)
+            << " side: " << sideToString(side_)            
+            << " price: " << priceToString(price_)
+            << " qty: " << qtyToString(qty_)
+            << " priority: " << priorityToString(priority_)
+            << "]";
+
+            return stream.str();
+        }
+    };
 }

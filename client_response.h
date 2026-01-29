@@ -42,7 +42,7 @@ namespace Exchange {
         return "UNKNOWN";
     }
 
-    class MEClientResponse {
+    struct MEClientResponse {
         ClientResponseType type_ = ClientResponseType::INVALID;
 
         ClientId clientId_ = ClientId_INVALID;
@@ -75,5 +75,5 @@ namespace Exchange {
     };
 #pragma pack(pop)
 
-    LFQueue<MEClientResponse> ClientResponseLFQueue;
+    typedef LFQueue<MEClientResponse> ClientResponseLFQueue;
 }
