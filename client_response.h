@@ -35,8 +35,11 @@ namespace Exchange {
             case ClientResponseType::CANCEL_REJECTED:
                 return "CANCEL_REJECTED";
                 break;
+            case ClientResponseType::INVALID:
+                return "INVALID";
+                break;
         }
-        return "INVALID";
+        return "UNKNOWN";
     }
 
     class MEClientResponse {
