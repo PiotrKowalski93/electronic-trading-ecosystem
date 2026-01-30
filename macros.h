@@ -9,6 +9,8 @@
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 // in C++20 [[likely]] [[unlikely]]
+// but it is not the same, it can be ignored by compiler
+
 
 inline auto ASSERT(bool cond, const std::string &msg) noexcept {
     if(UNLIKELY(!cond)){

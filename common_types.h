@@ -2,6 +2,7 @@
 #include <limits>
 #include <iostream>
 
+#include "constraints.h"
 #include "macros.h"
 
 namespace Common {
