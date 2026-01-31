@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "constraints.h"
-#include "common/macros.h"
+#include "macros.h"
 
 namespace Common {
 

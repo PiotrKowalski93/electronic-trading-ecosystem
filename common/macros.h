@@ -6,6 +6,9 @@
 //When working with conditional code (if-else statements), we often know which branch is true and which is not. 
 //If compiler knows this information in advance, it can generate most optimized code.
 
+// #define MacroName(argument)  
+// !!(x) -< couse it works best on simple values (0,1)
+// 
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 // in C++20 [[likely]] [[unlikely]]

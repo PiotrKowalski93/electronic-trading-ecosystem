@@ -33,7 +33,7 @@ namespace Exchange {
 
         auto toString() const -> std::string;
 
-        // array but not map() -> understand why
+        // array not map() -> understand why
         typedef std::array<MEOrder *, ME_MAX_ORDER_IDS> OrderHashMap;
         typedef std::array<OrderHashMap, ME_MAX_NUM_CLIENTS> ClientOrderHashMap;
     };
