@@ -7,4 +7,5 @@ file(GLOB SOURCES "*.h")
 
 include_directories(${PROJECT_SOURCE_DIR})
 
+# INTERFACE is logical combine
 add_library(libcommon INTERFACE ${SOURCES})

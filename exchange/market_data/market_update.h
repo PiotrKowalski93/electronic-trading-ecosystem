@@ -66,4 +66,7 @@ namespace Exchange {
             return stream.str();
         }
     };
+#pragma pack(pop)
+
+    typedef LFQueue<MEMarketUpdate> MarketDataLFQueue;
 }

@@ -9,7 +9,7 @@ using namespace Common;
 
 namespace Exchange {
 
-    struct MEOrder{
+    struct MEOrder {
         TickerId tickerId_ = TickerId_INVALID;
         ClientId clientId_ = ClientId_INVALID;
         OrderId client_orderId_ = OrderId_INVALID;
@@ -36,5 +36,26 @@ namespace Exchange {
         // array not map() -> understand why
         typedef std::array<MEOrder *, ME_MAX_ORDER_IDS> OrderHashMap;
         typedef std::array<OrderHashMap, ME_MAX_NUM_CLIENTS> ClientOrderHashMap;
+    };
+
+    struct MEOrderAtPriceLevel {
+        Side side_ = Side::INVALID;
+        Price price_ = Price_INVALID;
+
+        MEOrder *first_Order_ = nullptr;
+
+        MEOrderAtPriceLevel *prev_price_level_ = nullptr;
+        MEOrderAtPriceLevel *next_price_level_ = nullptr;
+
+        MEOrderAtPriceLevel() = default;
+
+        MEOrderAtPriceLevel(Side side, Price price, MEOrder *first_Order, 
+                MEOrderAtPriceLevel *prev_price_level, MEOrderAtPriceLevel *next_price_level) noexcept 
+            : side_(side), price_(price), first_Order_(first_Order_), prev_price_level_(prev_price_level), next_price_level_(next_price_level)
+            {};
+
+        auto toString() const -> std::string;
+
+        typedef std::array<MEOrderAtPriceLevel *, ME_MAX_PRICE_LEVELS> OrdersAtPriceLevelHashMap;
     };
 }
