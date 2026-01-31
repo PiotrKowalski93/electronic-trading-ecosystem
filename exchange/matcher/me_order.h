@@ -3,7 +3,7 @@
 #include <array>
 #include <sstream>
 
-#include "common_types.h"
+#include "common/common_types.h"
 
 using namespace Common;
 

@@ -8,6 +8,8 @@
 #include "order_server/client_response.h"
 #include "market_data/market_update.h"
 
+#include "common/logging.h"
+
 // #include "me_order_book.h"
 
 namespace Exchange
@@ -36,6 +38,6 @@ namespace Exchange
             volatile bool is_running_ = false;
 
             std::string time_str_;
-            //Logger logger_;
+            Logger logger_;
     };
 }
