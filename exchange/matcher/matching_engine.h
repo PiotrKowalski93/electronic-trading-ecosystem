@@ -3,6 +3,7 @@
 #include "common_types.h"
 #include "lf_queue.h"
 #include "macros.h"
+#include "thread_utils.h"
 
 #include "order_server/client_request.h"
 #include "order_server/client_response.h"
@@ -16,11 +17,12 @@ namespace Exchange
 {
     class MatchingEngine final {
         public:
-            MatchingEngine(ClientRequestLFQueue *client_requests, ClientResponseLFQueue *client_responses, 
-                MarketDataLFQueue *market_updates);
+            MatchingEngine(ClientRequestLFQueue* client_requests, ClientResponseLFQueue* client_responses, 
+                MarketDataLFQueue* market_updates);
             ~MatchingEngine();
 
             auto start() -> void;
+            auto run() -> void;
             auto stop() -> void;
 
             MatchingEngine() = delete;
@@ -30,7 +32,7 @@ namespace Exchange
             MatchingEngine& operator=(const MatchingEngine&&) = delete;
 
         private:
-            // OrderBook field
+            //TODO: add OrderBook field
             ClientRequestLFQueue *incoming_requests_ = nullptr;
             ClientResponseLFQueue *outgoing_responses_ = nullptr;
             MarketDataLFQueue *outgoing_market_updates_ = nullptr;
@@ -39,5 +41,9 @@ namespace Exchange
 
             std::string time_str_;
             Logger logger_;
+
+            auto processClientRequest(const MEClientRequest* client_request) noexcept -> void;
+            auto sendClientResponse(const MEClientResponse* client_response) noexcept -> void;
+            auto sendMarketUpdate(const MEMarketUpdate* market_update) noexcept -> void;
     };
 }
