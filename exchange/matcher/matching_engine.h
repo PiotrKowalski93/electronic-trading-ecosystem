@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common_types.h"
 #include "lf_queue.h"
 #include "macros.h"
 #include "thread_utils.h"
@@ -9,7 +8,7 @@
 #include "order_server/client_response.h"
 #include "market_data/market_update.h"
 
-#include "common/logging.h"
+#include "logging.h"
 
 // #include "me_order_book.h"
 

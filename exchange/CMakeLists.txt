@@ -1,11 +1,18 @@
 cmake_minimum_required (VERSION 3.8)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_library(libexchange STATIC 
+    matcher/matching_engine.cpp
+    matcher/me_order.cpp
+)
 
-file(GLOB SOURCES "*.h" "*.cpp")
+target_include_directories(libexchange
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-include_directories(${PROJECT_SOURCE_DIR})
+target_compile_features(libexchange PUBLIC cxx_std_20)
 
-# STATIC produces .a file, compiles
-add_library(libexchange STATIC ${SOURCES})
+target_link_libraries(libexchange
+    PUBLIC 
+        libcommon
+)

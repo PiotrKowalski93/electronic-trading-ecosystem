@@ -1,9 +1,7 @@
-#pragma once
-
 #include <array>
 #include <sstream>
 
-#include "common/common_types.h"
+#include "common_types.h"
 #include "me_order.h"
 
 using namespace Common;

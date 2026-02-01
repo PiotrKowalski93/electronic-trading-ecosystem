@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstddef>
 
 //TODO: Constraints form the book, remove them later, refactor system if needed
