@@ -30,6 +30,8 @@ namespace Exchange
             MatchingEngine& operator=(const MatchingEngine&) = delete;
             MatchingEngine& operator=(const MatchingEngine&&) = delete;
 
+            auto sendClientResponse(const MEClientResponse* client_response) noexcept -> void;
+
         private:
             //TODO: add OrderBook field
             ClientRequestLFQueue *incoming_requests_ = nullptr;
@@ -42,7 +44,6 @@ namespace Exchange
             Logger logger_;
 
             auto processClientRequest(const MEClientRequest* client_request) noexcept -> void;
-            auto sendClientResponse(const MEClientResponse* client_response) noexcept -> void;
             auto sendMarketUpdate(const MEMarketUpdate* market_update) noexcept -> void;
     };
 }

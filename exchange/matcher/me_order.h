@@ -32,11 +32,11 @@ namespace Exchange {
         {};
 
         auto toString() const -> std::string;
+    };
 
         // array not map() -> understand why
-        typedef std::array<MEOrder *, ME_MAX_ORDER_IDS> OrderHashMap;
+        typedef std::array<MEOrder*, ME_MAX_ORDER_IDS> OrderHashMap;
         typedef std::array<OrderHashMap, ME_MAX_NUM_CLIENTS> ClientOrderHashMap;
-    };
 
     struct MEOrderAtPriceLevel {
         Side side_ = Side::INVALID;
@@ -55,7 +55,7 @@ namespace Exchange {
             {};
 
         auto toString() const -> std::string;
-
-        typedef std::array<MEOrderAtPriceLevel *, ME_MAX_PRICE_LEVELS> OrdersAtPriceLevelHashMap;
     };
+
+    typedef std::array<MEOrderAtPriceLevel*, ME_MAX_PRICE_LEVELS> OrdersAtPriceLevelHashMap;
 }
