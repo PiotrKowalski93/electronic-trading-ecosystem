@@ -25,8 +25,9 @@ namespace Exchange{
         MEOrderBook& operator=(const MEOrderBook&&) = delete;
 
         auto add(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty) noexcept -> void;
-        auto getNextPriority(Price price) noexcept -> uint64_t;
+        auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
         auto addOrder(MEOrder* order) noexcept -> void;
+        auto addOrderAtPrice(MEOrderAtPriceLevel* new_price_level) noexcept -> void;
 
         // Returns qty that left, if 0, did not matched, if left qty == qty, fully executed
         auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;

@@ -18,8 +18,8 @@ namespace Exchange {
             << "price:" << priceToString(price_)
             << "qty:" << qtyToString(qty_)
             << "priority:" << priorityToString(priority_)
-            << "prev:" << orderIdToString(prev_order ? prev_order->market_orderId_ : OrderId_INVALID)
-            << "next:" << orderIdToString(next_order ? next_order->market_orderId_ : OrderId_INVALID)
+            << "prev:" << orderIdToString(prev_order_ ? prev_order_->market_orderId_ : OrderId_INVALID)
+            << "next:" << orderIdToString(next_order_ ? next_order_->market_orderId_ : OrderId_INVALID)
             << " ]";
 
         return ss.str();
