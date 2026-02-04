@@ -30,7 +30,7 @@ namespace Exchange {
         ss << "MEOrder ["
             << "side:" << sideToString(side_)
             << "price:" << priceToString(price_)
-            << "first_order:" << (first_Order_ ? first_Order_->toString() : "null")
+            << "first_order:" << (first_order_ ? first_order_->toString() : "null")
             << "prev lvl:" << priceToString(prev_price_level_ ? prev_price_level_->price_ : Price_INVALID)
             << "next lvl" << priceToString (next_price_level_ ? prev_price_level_->price_ : Price_INVALID)
             << " ]";

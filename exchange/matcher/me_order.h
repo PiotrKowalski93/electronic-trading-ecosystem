@@ -42,16 +42,16 @@ namespace Exchange {
         Side side_ = Side::INVALID;
         Price price_ = Price_INVALID;
 
-        MEOrder *first_Order_ = nullptr;
+        MEOrder *first_order_ = nullptr;
 
         MEOrderAtPriceLevel *prev_price_level_ = nullptr;
         MEOrderAtPriceLevel *next_price_level_ = nullptr;
 
         MEOrderAtPriceLevel() = default;
 
-        MEOrderAtPriceLevel(Side side, Price price, MEOrder *first_Order, 
+        MEOrderAtPriceLevel(Side side, Price price, MEOrder *first_order, 
                 MEOrderAtPriceLevel *prev_price_level, MEOrderAtPriceLevel *next_price_level) noexcept 
-            : side_(side), price_(price), first_Order_(first_Order_), prev_price_level_(prev_price_level), next_price_level_(next_price_level)
+            : side_(side), price_(price), first_order_(first_order), prev_price_level_(prev_price_level), next_price_level_(next_price_level)
             {};
 
         auto toString() const -> std::string;

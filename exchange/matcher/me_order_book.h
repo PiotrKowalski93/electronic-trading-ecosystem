@@ -24,11 +24,14 @@ namespace Exchange{
         MEOrderBook& operator=(const MEOrderBook&) = delete;
         MEOrderBook& operator=(const MEOrderBook&&) = delete;
 
+        // public:
         auto add(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty) noexcept -> void;
-        auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
-        auto addOrder(MEOrder* order) noexcept -> void;
-        auto addOrderAtPrice(MEOrderAtPriceLevel* new_price_level) noexcept -> void;
+        auto cancel(ClientId clientId, OrderId client_orderId, TickerId tickerId) noexcept -> void;
 
+        // private:
+        auto addOrder(MEOrder* order) noexcept -> void;
+        auto addOrdersAtPrice(MEOrderAtPriceLevel* new_price_level) noexcept -> void;
+        auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
         // Returns qty that left, if 0, did not matched, if left qty == qty, fully executed
         auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;
 
@@ -42,9 +45,29 @@ namespace Exchange{
         ClientOrderHashMap client_orders_;
 
         MemPool<MEOrderAtPriceLevel> price_levels_pool_;
-        MEOrderAtPriceLevel* bids_levels_ = nullptr;
-        MEOrderAtPriceLevel* asks_levels_ = nullptr;
 
+        // Price levels are always kept sorted at insertion time.
+        // Matching never reorders price levels.
+        // BIDs -> descending
+        // ASKs -> ascending
+        MEOrderAtPriceLevel* bid_levels_head = nullptr;
+        MEOrderAtPriceLevel* ask_levels_head = nullptr;
+
+        // NOTE:
+        // This is a direct-address price table (price ladder), NOT a traditional hashmap.
+        // For a given instrument and price, there can be at most ONE active price level.
+        //
+        // IMPORTANT INVARIANT:
+        // BID and ASK price levels never coexist at the same price.
+        // If an incoming order reaches an existing opposite-side price level,
+        // matching occurs immediately and the price level is consumed/removed.
+        // Therefore, a single array indexed by Price is sufficient.
+        //
+        // The `side_` field indicates whether this price level belongs to BID or ASK,
+        // but is NOT meant to allow both sides at the same price simultaneously.
+        //
+        // This design avoids extra indirection, branching and cache misses,
+        // which is critical for low-latency matching engines.
         OrdersAtPriceLevelHashMap price_levels_;
 
         MemPool<MEOrder> order_pool_;
