@@ -42,10 +42,10 @@ namespace Exchange {
         Side side_ = Side::INVALID;
         Price price_ = Price_INVALID;
 
-        MEOrder *first_order_ = nullptr;
+        MEOrder* first_order_ = nullptr;
 
-        MEOrderAtPriceLevel *prev_price_level_ = nullptr;
-        MEOrderAtPriceLevel *next_price_level_ = nullptr;
+        MEOrderAtPriceLevel* prev_price_level_ = nullptr;
+        MEOrderAtPriceLevel* next_price_level_ = nullptr;
 
         MEOrderAtPriceLevel() = default;
 

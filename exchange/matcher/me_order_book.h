@@ -34,6 +34,8 @@ namespace Exchange{
         auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
         // Returns qty that left, if 0, did not matched, if left qty == qty, fully executed
         auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;
+        auto removeOrder(MEOrder* order) noexcept -> void;
+        auto removePriceLevel(Side side, Price price) noexcept -> void;
 
     private:
         TickerId tickerId_ = TickerId_INVALID;

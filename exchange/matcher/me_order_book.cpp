@@ -121,7 +121,56 @@ namespace Exchange {
         }
     }
 
+    auto removePriceLevel(Side side, Price price) noexcept -> void{
+
+    }
+
+    auto MEOrderBook::removeOrder(MEOrder* order) noexcept -> void{
+        auto price_level = getOrdersAtPrcie(order->price_);
+
+        // If it points to itself = only one element, we can remove price level
+        if(order->prev_order_ == order){
+            removePriceLevel(order->side_, order->price_);
+        } else {
+            const auto prev_order = order->prev_order_;
+            const auto next_order = order->next_order_;
+            prev_order->next_order_ = next_order;
+            next_order->prev_order_ = prev_order;
+
+            //If order was head, set new head
+            if(price_level->first_order_ == order){
+                price_level->first_order_ = next_order;
+            }
+        }
+
+        client_orders_.at(order->clientId_).at(order->client_orderId_) = nullptr;
+        order_pool_.deallocate(order);
+    } 
+
     auto MEOrderBook::cancel(ClientId clientId, OrderId client_orderId, TickerId tickerId) noexcept -> void{
-        
+        // If id is bigger than our max index, cannot be cancelled
+        auto is_cancelable = (clientId < client_orders_.size());
+
+        MEOrder* order_to_cancel = nullptr;
+        if(LIKELY(is_cancelable)){
+            auto client_orders_itr = client_orders_.at(clientId);
+            order_to_cancel = client_orders_itr.at(client_orderId);
+            is_cancelable = (order_to_cancel != nullptr);
+
+            if(UNLIKELY(!is_cancelable)){
+                client_response_ = { ClientResponseType::CANCEL_REJECTED, clientId, tickerId, client_orderId, 
+                    OrderId_INVALID, Side::INVALID, Price_INVALID, Qty_INVALID, Qty_INVALID };
+            }else{
+                client_response_ = { ClientResponseType::CANCELLED, clientId, tickerId, client_orderId, 
+                    order_to_cancel->market_orderId_, order_to_cancel->side_, order_to_cancel->price_, Qty_INVALID, order_to_cancel->qty_ };
+
+                market_update_ = { MarketUpdateType::CANCEL, client_orderId, tickerId, 
+                    order_to_cancel->side_, order_to_cancel->price_, order_to_cancel->qty_, order_to_cancel->priority_};
+
+                removeOrder(order_to_cancel);
+                matching_engine_->sendMarketUpdate(&market_update_);
+            }
+            matching_engine_->sendClientResponse(&client_response_);
+        }
     }
 }
