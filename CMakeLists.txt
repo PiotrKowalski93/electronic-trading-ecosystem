@@ -11,6 +11,7 @@ add_executable (tradingecosystem
 
 add_subdirectory(common)
 add_subdirectory(exchange)
+add_subdirectory(tests)
 
 target_link_libraries(tradingecosystem
     PRIVATE
