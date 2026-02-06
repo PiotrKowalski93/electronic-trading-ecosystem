@@ -13,8 +13,8 @@ namespace Exchange {
         logger_->log("%:% %() % ~MEOrderBook\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
 
         matching_engine_ = nullptr;
-        bid_levels_head = nullptr;
-        ask_levels_head = nullptr;
+        bid_levels_head_ = nullptr;
+        ask_levels_head_ = nullptr;
 
         for (auto &itr: client_orders_) {
             itr.fill(nullptr);
@@ -26,7 +26,7 @@ namespace Exchange {
         price_levels_.at(priceToIndex(new_price_level->price_)) = new_price_level;
 
         //Get head of double linked-list asks or bids
-        auto side_orders_by_price_head = (new_price_level->side_ == Side::BUY) ? bid_levels_head : ask_levels_head;
+        auto side_orders_by_price_head = (new_price_level->side_ == Side::BUY) ? bid_levels_head_ : ask_levels_head_;
 
         if(UNLIKELY(!side_orders_by_price_head)){
             //no price levels, need to create
@@ -49,7 +49,7 @@ namespace Exchange {
             current_level->prev_price_level_ = new_price_level;
 
             if(new_price_level->price_ > side_orders_by_price_head->price_){
-                bid_levels_head = new_price_level;
+                bid_levels_head_ = new_price_level;
             }
         }else{
             while(new_price_level->price_ < current_level->price_ && current_level->next_price_level_ != side_orders_by_price_head){
@@ -62,13 +62,13 @@ namespace Exchange {
             current_level->prev_price_level_ = new_price_level;
 
             if(new_price_level->price_ < side_orders_by_price_head->price_){
-                ask_levels_head = new_price_level;
+                ask_levels_head_ = new_price_level;
             }
         }
     }
 
     auto MEOrderBook::getNextPriority(TickerId tickerId, Price price) noexcept -> Priority{
-        const auto orders_at_price = getOrdersAtPrcie(price);
+        const auto orders_at_price = getPriceLevel(price);
         if(!orders_at_price){
             // it is more optimal to return 1 as unsigned long, that 1 as int an then convert
             return 1lu;
@@ -78,7 +78,7 @@ namespace Exchange {
     }
 
     auto MEOrderBook::addOrder(MEOrder* order) noexcept -> void {
-        const auto price_level = getOrdersAtPrcie(order->price_);
+        const auto price_level = getPriceLevel(order->price_);
         if(!price_level){
             //Add level
             order->next_order_ = order->prev_order_ = order;
@@ -121,12 +121,29 @@ namespace Exchange {
         }
     }
 
-    auto removePriceLevel(Side side, Price price) noexcept -> void{
+    auto MEOrderBook::removePriceLevel(Side side, Price price) noexcept -> void{
+        auto orders_head = (side == Side::BUY ? bid_levels_head_ : ask_levels_head_);
+        const auto price_level = getPriceLevel(price);
 
+        // Price level map is looped, next == current then it is last prive level
+        // but we need to null head
+        if(UNLIKELY(price_level->next_price_level_ == price_level)){
+            orders_head = nullptr;
+        } else {
+            price_level->prev_price_level_->next_price_level_ = price_level->next_price_level_;
+            price_level->next_price_level_->prev_price_level_ = price_level->prev_price_level_;
+            //If we remove at head, change head
+            if(orders_head == price_level){
+                orders_head = price_level->next_price_level_;
+            }
+        }
+
+        price_levels_.at(priceToIndex(price)) = nullptr;
+        price_levels_pool_.deallocate(price_level);
     }
 
     auto MEOrderBook::removeOrder(MEOrder* order) noexcept -> void{
-        auto price_level = getOrdersAtPrcie(order->price_);
+        auto price_level = getPriceLevel(order->price_);
 
         // If it points to itself = only one element, we can remove price level
         if(order->prev_order_ == order){
@@ -172,5 +189,36 @@ namespace Exchange {
             }
             matching_engine_->sendClientResponse(&client_response_);
         }
+    }
+    auto MEOrderBook::matchAtPriceLevel(TickerId tickerId, ClientId clientId, Side side, OrderId client_orderId, OrderId market_orderId, MEOrder* itr, Qty* leaves_qty) noexcept -> void{
+
+    }
+
+    auto MEOrderBook::checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_orderId) noexcept -> Qty{
+        auto left_qty = qty;
+
+        if(side == Side::BUY){
+            while(left_qty && ask_levels_head_){
+                const auto ask_orders_itr = ask_levels_head_->first_order_;
+                if(LIKELY(price < ask_orders_itr->price_)){
+                    //There is no price that can fill this BUY order
+                    break;
+                }
+                matchAtPriceLevel(tickerId, clientId, side, client_orderId, market_orderId, ask_orders_itr, &left_qty);
+            }
+        }
+
+        if(side == Side::SELL){
+            while(left_qty && bid_levels_head_){
+                const auto bid_orders_itr = bid_levels_head_->first_order_;
+                if(LIKELY(price > bid_orders_itr->price_)){
+                    //There is no price that can fill this ASK order
+                    break;
+                }
+                matchAtPriceLevel(tickerId, clientId, side, client_orderId, market_orderId, bid_orders_itr, &left_qty);
+            }
+        }
+
+        return left_qty;
     }
 }

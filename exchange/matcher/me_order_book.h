@@ -36,6 +36,7 @@ namespace Exchange{
         auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;
         auto removeOrder(MEOrder* order) noexcept -> void;
         auto removePriceLevel(Side side, Price price) noexcept -> void;
+        auto matchAtPriceLevel(TickerId tickerId, ClientId clientId, Side side, OrderId client_orderId, OrderId market_orderId, MEOrder* itr, Qty* leaves_qty) noexcept -> void;
 
     private:
         TickerId tickerId_ = TickerId_INVALID;
@@ -46,14 +47,12 @@ namespace Exchange{
         // typedef std::array<OrderHashMap, ME_MAX_NUM_CLIENTS> ClientOrderHashMap;
         ClientOrderHashMap client_orders_;
 
-        MemPool<MEOrderAtPriceLevel> price_levels_pool_;
-
         // Price levels are always kept sorted at insertion time.
         // Matching never reorders price levels.
         // BIDs -> descending
         // ASKs -> ascending
-        MEOrderAtPriceLevel* bid_levels_head = nullptr;
-        MEOrderAtPriceLevel* ask_levels_head = nullptr;
+        MEOrderAtPriceLevel* bid_levels_head_ = nullptr;
+        MEOrderAtPriceLevel* ask_levels_head_ = nullptr;
 
         // NOTE:
         // This is a direct-address price table (price ladder), NOT a traditional hashmap.
@@ -71,6 +70,7 @@ namespace Exchange{
         // This design avoids extra indirection, branching and cache misses,
         // which is critical for low-latency matching engines.
         OrdersAtPriceLevelHashMap price_levels_;
+        MemPool<MEOrderAtPriceLevel> price_levels_pool_;
 
         MemPool<MEOrder> order_pool_;
 
@@ -90,7 +90,7 @@ namespace Exchange{
             return (price % ME_MAX_PRICE_LEVELS);
         }
 
-        auto getOrdersAtPrcie(Price price) const noexcept -> MEOrderAtPriceLevel*{
+        auto getPriceLevel(Price price) const noexcept -> MEOrderAtPriceLevel*{
             return price_levels_.at(priceToIndex(price));
         }
     };
