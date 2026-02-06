@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-add_library(libexchange STATIC 
+add_library( STATIC 
     matcher/matching_engine.cpp
     matcher/me_order.cpp
 )
@@ -8,6 +8,8 @@ add_library(libexchange STATIC
 target_include_directories(libexchange
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/market_data
+        ${CMAKE_CURRENT_SOURCE_DIR}/order_server
 )
 
 target_compile_features(libexchange 

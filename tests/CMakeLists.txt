@@ -12,4 +12,6 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+# Tests
 add_subdirectory(common)
+add_subdirectory(exchange)
