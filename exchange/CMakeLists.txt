@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-add_library( STATIC 
+add_library(libexchange STATIC 
     matcher/matching_engine.cpp
     matcher/me_order.cpp
 )

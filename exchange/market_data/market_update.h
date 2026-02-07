@@ -55,12 +55,12 @@ namespace Exchange {
             stream << "MEMarketUpdate"
             << " ["
             << "type:" << marketUpdateTypeToString(type_)
-            << " oid: " << orderIdToString(orderId_)
-            << " ticker: " << tickerIdToString(tickerId_)
-            << " side: " << sideToString(side_)            
-            << " price: " << priceToString(price_)
-            << " qty: " << qtyToString(qty_)
-            << " priority: " << priorityToString(priority_)
+            << " oid:" << orderIdToString(orderId_)
+            << " ticker:" << tickerIdToString(tickerId_)
+            << " side:" << sideToString(side_)            
+            << " price:" << priceToString(price_)
+            << " qty:" << qtyToString(qty_)
+            << " priority:" << priorityToString(priority_)
             << "]";
 
             return stream.str();
