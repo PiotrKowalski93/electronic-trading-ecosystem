@@ -14,7 +14,10 @@ namespace Exchange {
         ADD = 1,
         MODIFY = 2,
         CANCEL = 3,
-        TRADE = 4
+        TRADE = 4,
+        CLEAR = 5,
+        SNAPSHOT_START = 6,
+        SNAPSHOT_ENT = 7
     };
 
     inline auto marketUpdateTypeToString(MarketUpdateType marketUpdateType) -> std::string{
@@ -66,7 +69,23 @@ namespace Exchange {
             return stream.str();
         }
     };
-#pragma pack(pop)
+
+    struct MDPMarketUpdate{
+        size_t seq_num = 0;
+        MEMarketUpdate me_market_update;
+
+        auto toString() const -> std::string{
+            std::stringstream ss;
+            ss << "MDPMarketUpdate: " 
+                << "[ "
+                << "sequence number: " << seq_num
+                << me_market_update.toString()
+                << "]";
+            return ss.str();
+        }
+    };
+#pragma pack(pop) 
 
     typedef LFQueue<MEMarketUpdate> MarketDataLFQueue;
+    typedef LFQueue<MDPMarketUpdate> MDPMarketDataLFQueue;
 }
