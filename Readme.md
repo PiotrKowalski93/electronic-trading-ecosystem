@@ -1,3 +1,11 @@
+## Environment
+
+**OS:** Ubuntu (6.6.87.2-microsoft-standard-WSL2)
+
+**GCC:** 11.3.0
+
+**CMake:** 3.23.2
+
 ## 1. Basic components overview
 
 ![Alt text](./.docs/TradingSystemSimpleArchDiagram.png)
@@ -46,4 +54,7 @@ Notification can consist of many Add, Modify, Delete to communicate about full a
 
 Exchange publish those to cummunicate different stats about instrument.
 
+## 3. Order Gateway Server
+
+![Alt text](./.docs/OrderGatewayServer.png)
 
