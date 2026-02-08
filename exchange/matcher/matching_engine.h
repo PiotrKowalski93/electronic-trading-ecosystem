@@ -14,8 +14,7 @@
 
 namespace Exchange
 {
-    // Should be final, but for tests it is not
-    class MatchingEngine {
+    class MatchingEngine final {
         public:
             MatchingEngine(ClientRequestLFQueue* client_requests, ClientResponseLFQueue* client_responses, 
                 MarketDataLFQueue* market_updates);

@@ -39,8 +39,7 @@ namespace Common {
         } u_;
     };
 
-    // Removed final for tests
-    class Logger {
+    class Logger final{
     public:
         auto flushQueue() noexcept {
             while(running_){

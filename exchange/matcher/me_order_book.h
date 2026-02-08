@@ -14,8 +14,7 @@ namespace Exchange{
     // Forward Declaration
     class MatchingEngine;
 
-    // Not final for tests
-    class MEOrderBook {
+    class MEOrderBook final{
     public:
         MEOrderBook(TickerId tickerId, MatchingEngine* matching_engine, Logger* logger);
         ~MEOrderBook();
@@ -26,32 +25,9 @@ namespace Exchange{
         MEOrderBook& operator=(const MEOrderBook&) = delete;
         MEOrderBook& operator=(const MEOrderBook&&) = delete;
 
-        // Every method is public, my junior C++ ass needs to test it
-        // public:
         auto add(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty) noexcept -> void;
         auto cancel(ClientId clientId, OrderId client_orderId, TickerId tickerId) noexcept -> void;
         auto match(TickerId tickerId, ClientId clientId, Side side, OrderId client_orderId, OrderId market_orderId, MEOrder* itr, Qty* leaves_qty) noexcept -> void;
-
-        // private:
-        auto addOrder(MEOrder* order) noexcept -> void;
-        auto addOrdersAtPrice(MEOrderAtPriceLevel* new_price_level) noexcept -> void;
-        auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
-        // Returns qty that left, if 0, did not matched, if left qty == qty, fully executed
-        auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;
-        auto removeOrder(MEOrder* order) noexcept -> void;
-        auto removePriceLevel(Side side, Price price) noexcept -> void;
-
-        auto generateNewMarketOrderId() noexcept -> OrderId {
-            return next_market_order_id_++;
-        }
-
-        auto priceToIndex(Price price) const noexcept -> unsigned long{
-            return (price % ME_MAX_PRICE_LEVELS);
-        }
-
-        auto getPriceLevel(Price price) const noexcept -> MEOrderAtPriceLevel*{
-            return price_levels_.at(priceToIndex(price));
-        }
 
     private:
         TickerId tickerId_ = TickerId_INVALID;
@@ -96,6 +72,26 @@ namespace Exchange{
 
         std::string time_str_;
         Logger* logger_ = nullptr;
+
+        auto addOrder(MEOrder* order) noexcept -> void;
+        auto addOrdersAtPrice(MEOrderAtPriceLevel* new_price_level) noexcept -> void;
+        auto getNextPriority(TickerId tickerId, Price price) noexcept -> Priority;
+        // Returns qty that left, if 0, did not matched, if left qty == qty, fully executed
+        auto checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_order_Id) noexcept -> Qty;
+        auto removeOrder(MEOrder* order) noexcept -> void;
+        auto removePriceLevel(Side side, Price price) noexcept -> void;
+
+        auto generateNewMarketOrderId() noexcept -> OrderId {
+            return next_market_order_id_++;
+        }
+
+        auto priceToIndex(Price price) const noexcept -> unsigned long{
+            return (price % ME_MAX_PRICE_LEVELS);
+        }
+
+        auto getPriceLevel(Price price) const noexcept -> MEOrderAtPriceLevel*{
+            return price_levels_.at(priceToIndex(price));
+        }
     };
 
     typedef std::array<MEOrderBook*, ME_MAX_TICKERS> OrderBookHashMap;
