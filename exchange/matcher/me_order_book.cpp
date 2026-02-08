@@ -107,7 +107,7 @@ namespace Exchange {
                 new_market_orderId, side, price, 0, qty};
         matching_engine_->sendClientResponse(&client_response_);
 
-        //Check book
+        //Check order book
         const auto left_qty = checkForMatch(clientId, client_orderId, tickerId, side, price, qty, new_market_orderId);
 
         // If we have partiall fill
@@ -190,8 +190,41 @@ namespace Exchange {
             matching_engine_->sendClientResponse(&client_response_);
         }
     }
-    auto MEOrderBook::matchAtPriceLevel(TickerId tickerId, ClientId clientId, Side side, OrderId client_orderId, OrderId market_orderId, MEOrder* itr, Qty* leaves_qty) noexcept -> void{
 
+    auto MEOrderBook::match(TickerId tickerId, ClientId clientId, Side side, OrderId client_orderId, OrderId market_orderId, MEOrder* itr, Qty* left_qty) noexcept -> void{
+        const auto order = itr; // matched order
+        const auto order_qty = order->qty_; // matched order qty
+        const auto fill_qty = std::min(*left_qty, order_qty); //fill with matched order qty or incoming order qty
+
+        *left_qty -= fill_qty;
+        order->qty_ -= fill_qty;
+
+        //TODO: Should we add PARTIALL_FILL? or it will be done on propagating events
+        //Incoming order
+        client_response_ = {ClientResponseType::FILLED, clientId, tickerId, client_orderId,
+                        market_orderId, side, itr->price_, fill_qty, *left_qty};
+        matching_engine_->sendClientResponse(&client_response_);
+
+        //Order Matched
+        client_response_ = {ClientResponseType::FILLED, order->clientId_, order->tickerId_, order->client_orderId_,
+                            order->market_orderId_, order->side_, itr->price_, fill_qty, order->qty_};
+        matching_engine_->sendClientResponse(&client_response_);
+
+        // Market Info
+        market_update_ = {MarketUpdateType::TRADE, OrderId_INVALID, tickerId, side, itr->price_, fill_qty, Priority_INVALID};
+        matching_engine_->sendMarketUpdate(&market_update_);
+
+        if (!order->qty_) {
+            market_update_ = {MarketUpdateType::CANCEL, order->market_orderId_, tickerId, order->side_,
+                                order->price_, order_qty, Priority_INVALID};
+            matching_engine_->sendMarketUpdate(&market_update_);
+
+            removeOrder(order);
+        } else {
+            market_update_ = {MarketUpdateType::MODIFY, order->market_orderId_, tickerId, order->side_,
+                                order->price_, order->qty_, order->priority_};
+            matching_engine_->sendMarketUpdate(&market_update_);
+        }
     }
 
     auto MEOrderBook::checkForMatch(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty, OrderId market_orderId) noexcept -> Qty{
@@ -204,7 +237,7 @@ namespace Exchange {
                     //There is no price that can fill this BUY order
                     break;
                 }
-                matchAtPriceLevel(tickerId, clientId, side, client_orderId, market_orderId, ask_orders_itr, &left_qty);
+                match(tickerId, clientId, side, client_orderId, market_orderId, ask_orders_itr, &left_qty);
             }
         }
 
@@ -215,7 +248,7 @@ namespace Exchange {
                     //There is no price that can fill this ASK order
                     break;
                 }
-                matchAtPriceLevel(tickerId, clientId, side, client_orderId, market_orderId, bid_orders_itr, &left_qty);
+                match(tickerId, clientId, side, client_orderId, market_orderId, bid_orders_itr, &left_qty);
             }
         }
 

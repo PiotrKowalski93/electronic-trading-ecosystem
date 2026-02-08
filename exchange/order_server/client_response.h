@@ -17,7 +17,8 @@ namespace Exchange {
         ACCEPTED = 1,
         CANCELLED = 2,
         FILLED = 3,
-        CANCEL_REJECTED = 4
+        PARTIAL_FILL = 4,
+        CANCEL_REJECTED = 5
     };
 
     inline auto clientResponseTypeToString(ClientResponseType responseType) -> std::string {
@@ -31,6 +32,9 @@ namespace Exchange {
                 break;
             case ClientResponseType::FILLED:
                 return "FILLED";
+                break;
+            case ClientResponseType::PARTIAL_FILL:
+                return "PARTIAL_FILL";
                 break;
             case ClientResponseType::CANCEL_REJECTED:
                 return "CANCEL_REJECTED";

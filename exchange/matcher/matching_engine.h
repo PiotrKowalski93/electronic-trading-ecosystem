@@ -10,11 +10,12 @@
 
 #include "logging.h"
 
-// #include "me_order_book.h"
+#include "me_order_book.h"
 
 namespace Exchange
 {
-    class MatchingEngine final {
+    // Should be final, but for tests it is not
+    class MatchingEngine {
         public:
             MatchingEngine(ClientRequestLFQueue* client_requests, ClientResponseLFQueue* client_responses, 
                 MarketDataLFQueue* market_updates);
@@ -34,7 +35,7 @@ namespace Exchange
             auto sendMarketUpdate(const MEMarketUpdate* market_update) noexcept -> void;
 
         private:
-            //TODO: add OrderBook field
+            OrderBookHashMap ticker_order_book_;
             ClientRequestLFQueue *incoming_requests_ = nullptr;
             ClientResponseLFQueue *outgoing_responses_ = nullptr;
             MarketDataLFQueue *outgoing_market_updates_ = nullptr;

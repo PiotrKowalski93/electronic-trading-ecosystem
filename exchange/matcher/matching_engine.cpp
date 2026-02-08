@@ -10,7 +10,9 @@ namespace Exchange
         : incoming_requests_(client_requests), outgoing_responses_(client_responses), 
         outgoing_market_updates_(market_updates), logger_(maching_engine_log_filename)
         {
-            //TODO: Init OrderBook field
+            for(size_t i = 0; i < ticker_order_book_.size(); ++i) {
+                ticker_order_book_[i] = new MEOrderBook(i, this, &logger_);
+            }
         };
 
     MatchingEngine::~MatchingEngine() {
@@ -23,12 +25,28 @@ namespace Exchange
         outgoing_responses_ = nullptr;
         outgoing_market_updates_ = nullptr;
 
-        //TODO: DeInit OrderBook field
+        for(auto& order_book : ticker_order_book_) {
+            delete order_book;
+            order_book = nullptr;
+        }
     }
 
     auto MatchingEngine::processClientRequest(const MEClientRequest* client_request) noexcept -> void {
-        //TODO: Implement when we have OrderBook
-        //this method passes order to correct bucket (ticker_id)
+        auto order_book_ = ticker_order_book_[client_request->tickerId_];
+
+        switch (client_request->requestType_)
+        {
+            case ClientRequestType::NEW:
+                order_book_->add(client_request->clientId_, client_request->orderId_, client_request->tickerId_,
+                    client_request->side_, client_request->price_, client_request->qty_);
+                break;
+            case ClientRequestType::CANCEL:
+                order_book_->cancel(client_request->clientId_, client_request->orderId_, client_request->tickerId_);
+                break;
+            default:
+                FATAL("Recieved invalid requestType_: " + clientRequestTypeToString(client_request->requestType_));
+                break;
+        }
     }
 
     auto MatchingEngine::sendClientResponse(const MEClientResponse* client_response) noexcept -> void {
@@ -36,6 +54,13 @@ namespace Exchange
         auto next_write = outgoing_responses_->getNextToWriteTo();
         *next_write = std::move(*client_response);
         outgoing_responses_->updateNextToWriteTo();
+    }
+
+    auto MatchingEngine::sendMarketUpdate(const MEMarketUpdate* market_update) noexcept -> void{
+        logger_.log("%:% %() % Sending market update: %\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_), market_update->toString());
+        auto next_write = outgoing_market_updates_->getNextToWriteTo();
+        *next_write = std::move(*market_update);
+        outgoing_market_updates_->updateNextToWriteTo();
     }
 
     auto MatchingEngine::start() -> void {

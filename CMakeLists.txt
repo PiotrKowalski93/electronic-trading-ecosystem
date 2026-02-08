@@ -17,5 +17,4 @@ target_link_libraries(tradingecosystem
     PRIVATE
         libcommon
         libexchange
-        
 )

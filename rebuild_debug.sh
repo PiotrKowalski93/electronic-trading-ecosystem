@@ -14,7 +14,4 @@ echo "===> Configuring"
 cmake -DCMAKE_BUILD_TYPE=Debug ..
 
 echo "===> Building"
-cmake --build . -j$(nproc)
-
-echo "===> Running tests"
-ctest --verbose
+cmake --build . #-j$(nproc)
