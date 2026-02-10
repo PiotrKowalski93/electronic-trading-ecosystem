@@ -92,7 +92,7 @@ namespace Exchange {
             return ss.str();
         }
 
-    }
+    };
 
 #pragma pack(pop)
 
