@@ -52,5 +52,8 @@ namespace Exchange {
 
         /// FIFO sequencer responsible for making sure incoming client requests are processed in the order in which they were received.
         //FIFOSequencer fifo_sequencer;
+
+        auto recvCallback(TCPSocket* socket, Nanos rx_time) noexcept -> void;
+        auto recvFinishedCallback() noexcept -> void;
     };
 }
