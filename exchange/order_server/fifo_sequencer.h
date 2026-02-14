@@ -28,7 +28,7 @@ namespace Exchange{
         FIFOSequencer(ClientRequestLFQueue* client_requests, Logger* logger) 
             : incoming_requests_(client_requests), logger_(logger){};
 
-        ~FIFOSequencer();
+        ~FIFOSequencer(){};
         
         auto addClientRequest(Nanos rx_time, const MEClientRequest &client_request) -> void{
             if(pending_size_ >= pending_client_requests_.size()){
@@ -50,9 +50,22 @@ namespace Exchange{
             //TODO: Remove sort, rely on event loop order
             std::sort(pending_client_requests_.begin(), pending_client_requests_.begin() + pending_size_);
 
-            
+            for(size_t i = 0; i< pending_size_; ++i){
+                const auto &client_request = pending_client_requests_.at(i);
 
+                auto next_write = incoming_requests_->getNextToWriteTo();
+                *next_write = std::move(client_request.request);
+                incoming_requests_->updateNextToWriteTo();
+            }
+            pending_size_ = 0;
         }
+
+        /// Deleted default, copy & move constructors and assignment-operators.
+        FIFOSequencer() = delete;
+        FIFOSequencer(const FIFOSequencer &) = delete;
+        FIFOSequencer(const FIFOSequencer &&) = delete;
+        FIFOSequencer &operator=(const FIFOSequencer &) = delete;
+        FIFOSequencer &operator=(const FIFOSequencer &&) = delete;
 
     private:
         ClientRequestLFQueue* incoming_requests_ = nullptr;

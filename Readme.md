@@ -58,3 +58,28 @@ Exchange publish those to cummunicate different stats about instrument.
 
 ![Alt text](./.docs/OrderGatewayServer.png)
 
+The Order Gateway Server is responsible for:
+- Maintaining TCP connections with exchange clients
+- Receiving and parsing incoming client requests
+- Performing session-level validation
+- Sequencing requests before forwarding them to the Matching Engine
+- Routing requests to the appropriate instrument engine
+
+The current implementation follows a single-threaded event-loop model, ensuring deterministic processing order and avoiding synchronization overhead.
+
+### Possible improvements
+
+#### 1. Remove Batch Sorting
+
+std::sort(...) With sequence assignment
+
+#### 2. Per-Instrument Routing Layer
+
+Currently, single gateway handles all instruments and there is one Matching Engine. We should allow sharding per instrument
+
+#### 3. Write-Ahead Logging (WAL)
+
+Persist inbound requests before book mutation, Store last processed sequence number, Enable deterministic recovery after crash
+
+#### 4. Add monitoring
+#### 5. Add some sort of reject mechanism?

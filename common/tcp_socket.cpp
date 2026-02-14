@@ -14,7 +14,7 @@ namespace Common {
         // Set local info in TCPSocket obj
         // Bind to all local addresses
         inInAddr.sin_addr.s_addr = INADDR_ANY;
-        // set porty
+        // set port
         inInAddr.sin_port = htons(port);
         //AF_INET = IPv4
         inInAddr.sin_family = AF_INET;

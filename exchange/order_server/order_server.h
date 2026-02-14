@@ -7,7 +7,7 @@
 
 #include "client_request.h"
 #include "client_response.h"
-//#include "fifo_sequencer.h"
+#include "fifo_sequencer.h"
 
 namespace Exchange {
     class OrderServer{
@@ -17,10 +17,10 @@ namespace Exchange {
 
         /// Start and stop the order server main thread.
         auto start() -> void;
-        auto run() -> void;
+        auto run() noexcept -> void;
         auto stop() -> void;
 
-         /// Deleted default, copy & move constructors and assignment-operators.
+        /// Deleted default, copy & move constructors and assignment-operators.
         OrderServer() = delete;
         OrderServer(const OrderServer &) = delete;
         OrderServer(const OrderServer &&) = delete;
@@ -34,7 +34,7 @@ namespace Exchange {
         volatile bool is_running_ = false;
 
         std::string time_str_;
-        Logger logger;
+        Logger logger_;
 
         /// Lock free queue of outgoing client responses to be sent out to connected clients.
         ClientResponseLFQueue* client_responses_ = nullptr;
@@ -51,7 +51,7 @@ namespace Exchange {
         Common::TCPServer tcp_server_;
 
         /// FIFO sequencer responsible for making sure incoming client requests are processed in the order in which they were received.
-        //FIFOSequencer fifo_sequencer;
+        FIFOSequencer fifo_sequencer;
 
         auto recvCallback(TCPSocket* socket, Nanos rx_time) noexcept -> void;
         auto recvFinishedCallback() noexcept -> void;

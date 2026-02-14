@@ -4,6 +4,7 @@ add_library(libexchange STATIC
     matcher/matching_engine.cpp
     matcher/me_order.cpp
     matcher/me_order_book.cpp
+    order_server/order_server.cpp
 )
 
 target_include_directories(libexchange
