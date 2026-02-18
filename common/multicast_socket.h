@@ -29,7 +29,7 @@ namespace Common {
         // Copy data to send buffers
         auto send(const void* data, size_t len) noexcept -> void;
 
-        int socket_fd = -1;
+        int socket_fd_ = -1;
 
         std::vector<char> outbound_data_;
         size_t next_send_valid_index_ = 0;
