@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <socket_utils.h>
+#include "socket_utils.h"
 #include "logging.h"
 
 namespace Common {
@@ -24,7 +24,7 @@ namespace Common {
         auto leave(const std::string &ip, int port) ->void;
 
         // publish outgoing data and read incoming
-        auto sendAndRecv() noexcept -> void;
+        auto sendAndRecv() noexcept -> bool;
 
         // Copy data to send buffers
         auto send(const void* data, size_t len) noexcept -> void;
