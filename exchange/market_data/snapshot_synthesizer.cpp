@@ -130,4 +130,26 @@ namespace Exchange{
 
         logger_.log("%:% %() % Published snapshot\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
     }
+
+    auto SnapshotSynthesizer::run() noexcept -> void{
+        logger_.log("%:% %()\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_));
+
+        // Main loop for SnapshotSynthesizer
+        while(is_running){
+            for(auto marker_update = snapshot_marker_updates_->getNextToRead(); 
+                    snapshot_marker_updates_->size() && marker_update; 
+                    marker_update = snapshot_marker_updates_->getNextToRead()){
+                logger_.log("%:% %() Processing market update: %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), marker_update->toString());
+
+                addToSnapshot(marker_update);
+                snapshot_marker_updates_->updateReadIndex();
+            }
+
+            if(getCurrentNanos() - last_snapshot_time_ > 60 * NANOS_TO_SECS){
+                last_snapshot_time_ = getCurrentNanos();
+                publishSnapshot();
+            }
+        }
+    }
+    
 }
