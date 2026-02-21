@@ -73,4 +73,61 @@ namespace Exchange{
         ASSERT(market_update->seq_num == last_inc_seq_num_ + 1, "Expected incremental seq number to increase.");
         last_inc_seq_num_ = market_update->seq_num;
     }
+
+    auto SnapshotSynthesizer::publishSnapshot() -> void{
+        size_t snapshot_size = 0;
+
+        // First msg in multicast SNAPSHOT_START
+        const MDPMarketUpdate snapshot_start_msg {
+            snapshot_size++,
+            {
+                MarketUpdateType::SNAPSHOT_START,
+                last_inc_seq_num_
+            }
+        };
+
+        logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_start_msg.toString());
+
+        snapshot_socket_.send(&snapshot_start_msg, sizeof(MDPMarketUpdate));
+
+        // Iterate throught tickers and their orders, send CLEAR
+        for(size_t tickerId = 0; tickerId < orders_per_ticker_.size(); ++tickerId){
+            const auto &orders = orders_per_ticker_.at(tickerId);
+
+            MEMarketUpdate me_market_update;
+            me_market_update.type_ = MarketUpdateType::CLEAR;
+            me_market_update.tickerId_ = tickerId;
+
+            const MDPMarketUpdate clear_market_update{snapshot_size++, me_market_update};
+            logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), clear_market_update.toString());
+
+            snapshot_socket_.send(&clear_market_update, sizeof(MDPMarketUpdate));
+            
+            // Send Orders
+            for(const auto order : orders){
+                if(order){
+                    const MDPMarketUpdate order_market_update {snapshot_size++, *order };
+                    logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), order_market_update.toString());
+
+                    snapshot_socket_.send(&order_market_update, sizeof(MDPMarketUpdate));
+                    snapshot_socket_.sendAndRecv();
+                }
+            }
+        }
+
+        const MDPMarketUpdate snapshot_end_msg {
+            snapshot_size++,
+            {
+                MarketUpdateType::SNAPSHOT_END,
+                last_inc_seq_num_
+            }
+        };
+
+        logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
+
+        snapshot_socket_.send(&snapshot_end_msg, sizeof(MDPMarketUpdate));
+        snapshot_socket_.sendAndRecv();
+
+        logger_.log("%:% %() % Published snapshot\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
+    }
 }

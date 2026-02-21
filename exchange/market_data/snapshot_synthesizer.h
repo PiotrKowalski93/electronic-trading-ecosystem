@@ -25,6 +25,7 @@ namespace Exchange{
         auto run() noexcept -> void;
 
         auto addToSnapshot(const MDPMarketUpdate* market_update) -> void;
+        auto publishSnapshot() -> void;
 
     private:
         MDPMarketDataLFQueue* snapshot_marker_updates_ = nullptr;
