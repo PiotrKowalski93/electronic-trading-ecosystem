@@ -15,8 +15,9 @@ namespace Exchange{
             logger_(market_data_publisher_log_filename),
             incremental_socket_(logger_)
     {
-        ASSERT(incremental_socket_.init(incremental_ip, iface, incremental_port, /*is_listening*/ false) >= 0, "Unable to create incremental mcast socket. error:" /*+ std::string(std::strerror(errno))*/);
-        //snapshot_synthesizer_ = new SnapshotSynthesizer(&snapshot_md_updates_, iface, snapshot_ip, snapshot_port);
+        ASSERT(incremental_socket_.init(incremental_ip, iface, incremental_port, /*is_listening*/ false) >= 0, 
+            "Unable to create incremental mcast socket. error:" /*+ std::string(std::strerror(errno))*/);
+        snapshot_synthesizer_ = new SnapshotSynthesizer(&snapshot_updates_, iface, snapshot_ip, snapshot_port);
     }
 
     MarketDataPublisher::~MarketDataPublisher(){
@@ -25,8 +26,8 @@ namespace Exchange{
         using namespace std::literals::chrono_literals;
         std::this_thread::sleep_for(5s);
 
-        //delete snapshot_synthesizer_;
-        //snapshot_synthesizer_ = nullptr;
+        delete snapshot_synthesizer_;
+        snapshot_synthesizer_ = nullptr;
         // TODO: why not destroing other *?
     }
 
@@ -61,11 +62,11 @@ namespace Exchange{
     auto MarketDataPublisher::start() -> void {
         is_running_ = true;
         ASSERT(Common::createAndStartThread(-1, "Exchange/MarketDataPublisher", [this]() { run(); }) != nullptr, "Failed to start MarketData thread.");
-        //snapshot_synthesizer_->start();
+        snapshot_synthesizer_->start();
     }
 
     auto MarketDataPublisher::stop() -> void{
         is_running_ = false;
-        //snapshot_synthesizer_->stop();
+        snapshot_synthesizer_->stop();
     }
 }

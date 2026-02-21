@@ -6,7 +6,7 @@
 #include "logging.h"
 #include "multicast_socket.h"
 
-//#include "snapshot_synthesizer.h"
+#include "snapshot_synthesizer.h"
 
 namespace Exchange{
     class MarketDataPublisher{
@@ -37,6 +37,6 @@ namespace Exchange{
         Logger logger_;
 
         Common::MulticastSocket incremental_socket_;
-        //SnapshotSynthesizer* snapshot_synthesizer_ = nullptr;
+        SnapshotSynthesizer* snapshot_synthesizer_ = nullptr;
     };
 }

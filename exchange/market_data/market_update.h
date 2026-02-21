@@ -17,7 +17,7 @@ namespace Exchange {
         TRADE = 4,
         CLEAR = 5,
         SNAPSHOT_START = 6,
-        SNAPSHOT_ENT = 7
+        SNAPSHOT_END = 7
     };
 
     inline auto marketUpdateTypeToString(MarketUpdateType marketUpdateType) -> std::string{

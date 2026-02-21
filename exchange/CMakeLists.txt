@@ -6,6 +6,7 @@ add_library(libexchange STATIC
     matcher/me_order_book.cpp
     order_server/order_server.cpp
     market_data/market_data_publisher.cpp
+    market_data/snapshot_synthesizer.cpp
 )
 
 target_include_directories(libexchange

@@ -8,9 +8,10 @@
 
 ## 1. Basic components overview
 
-![Alt text](./.docs/TradingSystemSimpleArchDiagram.png)
-
-*Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh*
+| ![](./.docs/TradingSystemSimpleArchDiagram.png) | 
+|:--:| 
+| Trading System architecture diagram |
+| *Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh* |
 
 **Market Data Publisher:** Broadcasts low-latency market data (ticks, order book updates) to downstream components.
 
@@ -26,9 +27,16 @@
 
 ## 2. Market Data publisher
 
-![Alt text](./.docs/MarketDataPublisher.png)
+| ![](./.docs/MarketDataPublisher.png) | 
+|:--:| 
+| Market Data Publisher architecture diagram |
+| *Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh* |
 
-*Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh*
+| ![](./.docs/SnapshotMessages.png) | 
+|:--:| 
+| Snapshot messages flow |
+| *Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh* |
+
 
 **2.1. Market state changes**
 
@@ -56,7 +64,10 @@ Exchange publish those to cummunicate different stats about instrument.
 
 ## 3. Order Gateway Server
 
-![Alt text](./.docs/OrderGatewayServer.png)
+| ![](./.docs/OrderGatewayServer.png) | 
+|:--:| 
+| Order Gateway Server architecture diagram |
+| *Architecture diagram ispired by book "Building Low Latency Applications in C++" by Sourav Ghosh* |
 
 The Order Gateway Server is responsible for:
 - Maintaining TCP connections with exchange clients
@@ -67,7 +78,13 @@ The Order Gateway Server is responsible for:
 
 The current implementation follows a single-threaded event-loop model, ensuring deterministic processing order and avoiding synchronization overhead.
 
-### Possible improvements
+
+
+
+
+
+
+### 4. Possible improvements
 
 #### 1. Remove Batch Sorting
 
