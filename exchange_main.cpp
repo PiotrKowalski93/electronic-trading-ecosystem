@@ -2,10 +2,12 @@
 
 #include "exchange/matcher/matching_engine.h"
 #include "exchange/order_server/order_server.h"
+#include "exchange/market_data/market_data_publisher.h"
 
 Common::Logger* logger = nullptr;
 Exchange::MatchingEngine* matching_engine = nullptr;
-Exchange::OrderServer *order_server = nullptr;
+Exchange::OrderServer* order_server = nullptr;
+Exchange::MarketDataPublisher* market_data_publisher = nullptr;
 
 void signal_handler(int){
     using namespace std::literals::chrono_literals;
@@ -39,6 +41,19 @@ int main (){
 
     matching_engine = new Exchange::MatchingEngine(&client_requests, &client_responses, &market_updates);
     matching_engine->start();
+
+    // ---------------- Market Data Publisher ----------------
+    const std::string mkt_pub_iface = "lo";
+
+    const std::string snap_pub_ip = "233.252.14.1";
+    const int snap_pub_port = 20000;
+
+    const std::string inc_pub_ip = "233.252.14.3";
+    const int inc_pub_port = 20001;
+
+    logger->log("%:% %() % Starting Market Data Publisher...\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str));
+    market_data_publisher = new Exchange::MarketDataPublisher(&market_updates, mkt_pub_iface, snap_pub_ip, snap_pub_port, inc_pub_ip, inc_pub_port);
+    market_data_publisher->start();
 
     // ---------------- Order Server ----------------
     const std::string order_gw_iface = "lo";

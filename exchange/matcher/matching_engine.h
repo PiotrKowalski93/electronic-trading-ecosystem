@@ -33,6 +33,8 @@ namespace Exchange
             auto sendClientResponse(const MEClientResponse* client_response) noexcept -> void;
             auto sendMarketUpdate(const MEMarketUpdate* market_update) noexcept -> void;
 
+            //TODO: Refactor to MatchingEngine Core
+            auto processClientRequest(const MEClientRequest* client_request) noexcept -> void;
         private:
             OrderBookHashMap ticker_order_book_;
             ClientRequestLFQueue *incoming_requests_ = nullptr;
@@ -44,6 +46,6 @@ namespace Exchange
             std::string time_str_;
             Logger logger_;
 
-            auto processClientRequest(const MEClientRequest* client_request) noexcept -> void;
+           
     };
 }

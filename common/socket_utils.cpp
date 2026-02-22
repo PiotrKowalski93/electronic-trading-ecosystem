@@ -74,15 +74,7 @@ namespace Common{
         return(setsockopt(fd, IPPROTO_TCP, IP_MULTICAST_TTL, reinterpret_cast<void*>(&mcast_ttl), sizeof(mcast_ttl)) != -1);
     }
     
-    // Join multicast group
-    inline auto join(int fd, const std::string &ip) -> bool {
-        const ip_mreq mreq{
-            { inet_addr(ip.c_str()) }, 
-            { htonl(INADDR_ANY) }
-        };
-
-        return (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) != -1);
-    }
+    
 
     //TODO: Refactor method. Break it into utp, tcp, listening, sending. SRP bro
     auto createSocket(Logger &logger, const std::string &t_ip, const std::string &iface, int port, bool is_udp, 

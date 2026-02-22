@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string.h>
 #include <unordered_set>
@@ -29,8 +31,18 @@ namespace Common{
     auto wouldBlock() -> bool;
     auto setTTL(int fd, int ttl) -> bool;
     auto setMcastTTL(int fd, int mcast_ttl) noexcept -> bool;
-    auto join(int fd, const std::string &ip) -> bool;
+    // auto join(int fd, const std::string &ip) -> bool;
     auto createSocket(Logger &logger, const std::string &t_ip, const std::string &iface, int port, bool is_udp, bool is_blocking, bool is_listening, int ttl, bool needs_so_timestamp) -> int; 
+
+    // Join multicast group
+    inline auto join(int fd, const std::string &ip) -> bool {
+        const ip_mreq mreq{
+            { inet_addr(ip.c_str()) }, 
+            { htonl(INADDR_ANY) }
+        };
+
+        return (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) != -1);
+    }
 
     struct SocketCfg {
         std::string ip_;
