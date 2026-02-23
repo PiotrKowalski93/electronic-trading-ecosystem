@@ -33,6 +33,8 @@ namespace Exchange
 
     auto MatchingEngine::processClientRequest(const MEClientRequest* client_request) noexcept -> void {
         auto order_book_ = ticker_order_book_[client_request->tickerId_];
+        
+        logger_.log("processClientRequest %, %", __FILE__, __LINE__);//%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
 
         switch (client_request->requestType_)
         {

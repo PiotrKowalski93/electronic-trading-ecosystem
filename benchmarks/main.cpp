@@ -13,21 +13,16 @@ inline uint64_t rdtsc() {
     return __rdtsc();
 }
 
-auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_requests)
+auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_requests, size_t n)
 {
     using namespace Exchange;
-
-    constexpr size_t TOTAL = 1'000'000;
-    constexpr double NEW_RATIO = 0.70;
-    constexpr double CANCEL_RATIO = 0.20;
-    constexpr double MODIFY_RATIO = 0.10;
 
     constexpr int NUM_TICKERS = 5;
     constexpr Price BASE_MID_PRICE = 10000; // np 100.00 przy tick=1
     constexpr Price TICK_SIZE = 1;
 
     client_requests->clear();
-    client_requests->reserve(TOTAL);
+    client_requests->reserve(n);
 
     std::mt19937_64 rng(42);
 
@@ -51,86 +46,46 @@ auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_reques
         return static_cast<Qty>(qty);
     };
 
-    std::vector<OrderId> active_orders;
-    active_orders.reserve(TOTAL);
-
     OrderId next_order_id = 1;
 
-    for (size_t i = 0; i < TOTAL; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
         double p = prob_dist(rng);
 
         MEClientRequest req{};
 
-        // --- NEW ---
-        if (p < NEW_RATIO || active_orders.empty())
-        {
-            req.requestType_ = ClientRequestType::NEW;
-            req.orderId_ = next_order_id++;
-            req.clientId_ = static_cast<ClientId>(req.orderId_ % 1000);
-            req.tickerId_ = static_cast<TickerId>(ticker_dist(rng));
+        req.requestType_ = ClientRequestType::NEW;
+        req.orderId_ = next_order_id++;
+        req.clientId_ = static_cast<ClientId>(req.orderId_ % 1000);
+        req.tickerId_ = static_cast<TickerId>(ticker_dist(rng));
 
-            req.side_ = side_dist(rng) == 0 ? Side::BUY : Side::SELL;
+        req.side_ = side_dist(rng) == 0 ? Side::BUY : Side::SELL;
 
-            // cena wokół mid
-            Price delta = static_cast<Price>(std::round(price_dist(rng)));
-            req.price_ = BASE_MID_PRICE + delta * TICK_SIZE;
+        Price delta = static_cast<Price>(std::round(price_dist(rng)));
+        req.price_ = BASE_MID_PRICE + delta * TICK_SIZE;
 
-            req.qty_ = power_law_qty();
-
-            active_orders.push_back(req.orderId_);
-        }
-        // --- CANCEL ---
-        else if (p < NEW_RATIO + CANCEL_RATIO)
-        {
-            req.requestType_ = ClientRequestType::CANCEL;
-
-            std::uniform_int_distribution<size_t> cancel_dist(0, active_orders.size() - 1);
-            size_t idx = cancel_dist(rng);
-
-            req.orderId_ = active_orders[idx];
-            req.clientId_ = static_cast<ClientId>(req.orderId_ % 1000);
-            req.tickerId_ = static_cast<TickerId>(0); // engine powinien lookupować
-
-            req.side_ = Side::INVALID;
-            req.price_ = Price_INVALID;
-            req.qty_ = Qty_INVALID;
-
-            // usuń z active
-            active_orders[idx] = active_orders.back();
-            active_orders.pop_back();
-        }
-        // --- MODIFY ---
-        else
-        {
-            req.requestType_ = ClientRequestType::NEW; // traktujemy jako replace
-
-            std::uniform_int_distribution<size_t> mod_dist(0, active_orders.size() - 1);
-            size_t idx = mod_dist(rng);
-
-            req.orderId_ = active_orders[idx];
-            req.clientId_ = static_cast<ClientId>(req.orderId_ % 1000);
-            req.tickerId_ = static_cast<TickerId>(ticker_dist(rng));
-
-            req.side_ = side_dist(rng) == 0 ? Side::BUY : Side::SELL;
-
-            Price delta = static_cast<Price>(std::round(price_dist(rng)));
-            req.price_ = BASE_MID_PRICE + delta * TICK_SIZE;
-
-            req.qty_ = power_law_qty();
-        }
+        req.qty_ = power_law_qty();
 
         client_requests->push_back(req);
+
+        std::cout << req.toString() << std::endl;
     }
 }
 
 
 int main(){
     // Prepare benchmark
-    const size_t NUMBER_OF_ORDERS = 1000000;    // 1 000 000
-    const size_t WARMUP_COUNT = 100000;         // 100 000
+    const size_t NUMBER_OF_ORDERS = 10; 
+    const size_t WARMUP_COUNT = 2;
+    //const size_t NUMBER_OF_ORDERS = 1'000'000;    // 1 000 000
+    //const size_t WARMUP_COUNT = 100'000;         // 100 000
 
-    Exchange::MatchingEngine* engine = new Exchange::MatchingEngine(nullptr, nullptr, nullptr);
+    // Prepare dependencies
+    Exchange::ClientRequestLFQueue* client_requests_q = new Exchange::ClientRequestLFQueue(NUMBER_OF_ORDERS);
+    Exchange::ClientResponseLFQueue* client_responses_q = new Exchange::ClientResponseLFQueue(NUMBER_OF_ORDERS); 
+    Exchange::MarketDataLFQueue* market_updates_q = new Exchange::MarketDataLFQueue(NUMBER_OF_ORDERS);
+
+    Exchange::MatchingEngine* engine = new Exchange::MatchingEngine(client_requests_q, client_responses_q, market_updates_q);
 
     std::vector<Exchange::MEClientRequest> client_requests;
     client_requests.reserve(NUMBER_OF_ORDERS);
@@ -140,16 +95,18 @@ int main(){
 
     // Prepare requests
     std::cout << "Prepare requests" << std::endl;
-    prepare_real_requests(&client_requests);
+    prepare_real_requests(&client_requests, NUMBER_OF_ORDERS);
 
     // Warmup
     std::cout << "Warmup" << std::endl;
-    for (size_t i = 0; i < 100'000; ++i)
+    for (size_t i = 0; i < WARMUP_COUNT; ++i){
+        //std::cout << i << ",";
         engine->processClientRequest(&client_requests[i]);
+    }
 
     // Benchmark
     std::cout << "Benchmark" << std::endl;
-    for (size_t i = 100'000; i < client_requests.size(); ++i){
+    for (size_t i = WARMUP_COUNT; i < client_requests.size(); ++i){
         // processor time stamp - The processor time stamp records the number of clock cycles since the last reset.
         auto start = rdtsc();
         engine->processClientRequest(&client_requests[i]);
@@ -165,4 +122,7 @@ int main(){
     //auto p99  = latencies[N * 0.99];
     //auto p999 = latencies[N * 0.999];
     //auto max  = latencies.back();
+    for(uint64_t l : latencies){
+        std::cout << l << ",";
+    }
 }

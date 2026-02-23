@@ -34,7 +34,7 @@ namespace Exchange {
         volatile bool is_running_ = false;
 
         std::string time_str_;
-        Logger logger_;
+        Common::Logger logger_;
 
         /// Lock free queue of outgoing client responses to be sent out to connected clients.
         ClientResponseLFQueue* client_responses_ = nullptr;

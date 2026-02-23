@@ -44,8 +44,6 @@ namespace Exchange
             volatile bool is_running_ = false;
 
             std::string time_str_;
-            Logger logger_;
-
-           
+            Common::Logger logger_;
     };
 }

@@ -72,7 +72,10 @@ namespace Common {
             file_.open(file_name_);
             ASSERT(file_.is_open(), "Could not open log file: " + file_name_);
 
-            logger_thread_ = createAndStartThread(-1, "Logger", [this]() { flushQueue(); } );
+            logger_thread_ = createAndStartThread(-1, "Logger", [this]() { 
+                flushQueue();
+            } );
+
             ASSERT(logger_thread_ != nullptr, "Could not start logger thread.");
         }
 
@@ -163,7 +166,7 @@ namespace Common {
             FATAL("extra arguments provided to log()");
         }
 
-        // note that this is overloading not specialization. gcc does not allow inline specializations.
+        //note that this is overloading not specialization. gcc does not allow inline specializations.
         auto log(const char *s) noexcept {
             while (*s) {
                 if (*s == '%') {
