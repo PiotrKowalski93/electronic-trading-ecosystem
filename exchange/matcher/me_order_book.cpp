@@ -102,8 +102,6 @@ namespace Exchange {
     auto MEOrderBook::add(ClientId clientId, OrderId client_orderId, TickerId tickerId, Side side, Price price, Qty qty) noexcept -> void {
         auto new_market_orderId = generateNewMarketOrderId();
 
-        logger_->log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
-
         // this is ACCEPTED in FIX
         client_response_ = {ClientResponseType::ACCEPTED, clientId, tickerId, client_orderId,
                 new_market_orderId, side, price, 0, qty};

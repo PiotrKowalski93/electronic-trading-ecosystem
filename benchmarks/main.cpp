@@ -5,12 +5,32 @@
 #include <time.h>
 #include <algorithm>
 #include <x86intrin.h>
+#include <cstdio>
+#include <ctime>
+#include <iostream>
+#include <fstream>
 
 #include "logging.h"
 #include "matching_engine.h"
 
 inline uint64_t rdtsc() {
     return __rdtsc();
+}
+
+std::string make_timestamp()
+{
+    auto now = std::chrono::system_clock::now();
+    return std::format("{:%Y%m%d%H%M%S}", now);
+}
+
+void save_latencies_binary(const std::vector<uint64_t>& latencies, const std::string& filename)
+{
+    std::ofstream file(filename, std::ios::binary);
+
+    file.write(
+        reinterpret_cast<const char*>(latencies.data()),
+        latencies.size() * sizeof(uint64_t)
+    );
 }
 
 auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_requests, size_t n)
@@ -55,7 +75,7 @@ auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_reques
         MEClientRequest req{};
 
         req.requestType_ = ClientRequestType::NEW;
-        req.orderId_ = next_order_id++;
+        req.orderId_ = next_order_id >= 250 ? next_order_id = 1 : next_order_id++;
         req.clientId_ = static_cast<ClientId>(req.orderId_ % 1000);
         req.tickerId_ = static_cast<TickerId>(ticker_dist(rng));
 
@@ -68,17 +88,17 @@ auto prepare_real_requests(std::vector<Exchange::MEClientRequest>* client_reques
 
         client_requests->push_back(req);
 
-        std::cout << req.toString() << std::endl;
+        //std::cout << req.toString() << std::endl;
     }
 }
 
 
 int main(){
     // Prepare benchmark
-    const size_t NUMBER_OF_ORDERS = 10; 
-    const size_t WARMUP_COUNT = 2;
-    //const size_t NUMBER_OF_ORDERS = 1'000'000;    // 1 000 000
-    //const size_t WARMUP_COUNT = 100'000;         // 100 000
+    //const size_t NUMBER_OF_ORDERS = 10; 
+    //const size_t WARMUP_COUNT = 2;
+    const size_t NUMBER_OF_ORDERS = 1'000'000;    // 1 000 000
+    const size_t WARMUP_COUNT = 100'000;         // 100 000
 
     // Prepare dependencies
     Exchange::ClientRequestLFQueue* client_requests_q = new Exchange::ClientRequestLFQueue(NUMBER_OF_ORDERS);
@@ -100,7 +120,6 @@ int main(){
     // Warmup
     std::cout << "Warmup" << std::endl;
     for (size_t i = 0; i < WARMUP_COUNT; ++i){
-        //std::cout << i << ",";
         engine->processClientRequest(&client_requests[i]);
     }
 
@@ -113,16 +132,28 @@ int main(){
         auto end = rdtsc();
 
         latencies.push_back(end - start);
-        std::cout << end - start << std::endl;
     }
 
     // Save results
+    int N = NUMBER_OF_ORDERS - WARMUP_COUNT;
+
+    // Save to file
+    //std::string path = "./results/";
+    auto filename = "Benchmark_NewOrders_" + make_timestamp() + ".bin";
+
+    std::ofstream MyFile(filename);
+    save_latencies_binary(latencies, filename);
+
+    // TODO: present data with pyton
     std::sort(latencies.begin(), latencies.end());
-    //auto p50  = latencies[N * 0.50];
-    //auto p99  = latencies[N * 0.99];
-    //auto p999 = latencies[N * 0.999];
-    //auto max  = latencies.back();
-    for(uint64_t l : latencies){
-        std::cout << l << ",";
-    }
+    auto p50  = latencies[N * 0.50];
+    auto p99  = latencies[N * 0.99];
+    auto p999 = latencies[N * 0.999];
+    auto max  = latencies.back();
+    
+    std::cout << "N = " << N << std::endl;
+    std::cout << "p50 = " << p50 << std::endl;
+    std::cout << "p99 = " << p99 << std::endl;
+    std::cout << "p999 = " << p999 << std::endl;
+    std::cout << "Max = " << max << std::endl;
 }
