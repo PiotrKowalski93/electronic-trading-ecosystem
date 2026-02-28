@@ -3,9 +3,9 @@ cmake_minimum_required (VERSION 3.8)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(tradingecosystem LANGUAGES CXX)
+project(exchange LANGUAGES CXX)
 
-add_executable (tradingecosystem 
+add_executable (exchange 
     exchange_main.cpp
 )
 
@@ -14,7 +14,7 @@ add_subdirectory(exchange)
 add_subdirectory(tests)
 add_subdirectory(benchmarks)
 
-target_link_libraries(tradingecosystem
+target_link_libraries(exchange
     PRIVATE
         libcommon
         libexchange
