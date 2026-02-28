@@ -36,7 +36,7 @@ namespace Exchange{
         std::string time_str_;
         Logger logger_;
 
-        Common::MulticastSocket incremental_socket_;
+        MulticastSocket incremental_socket_;
         SnapshotSynthesizer* snapshot_synthesizer_ = nullptr;
     };
 }

@@ -71,10 +71,8 @@ namespace Common{
     }
 
     auto setMcastTTL(int fd, int mcast_ttl) noexcept -> bool {
-        return(setsockopt(fd, IPPROTO_TCP, IP_MULTICAST_TTL, reinterpret_cast<void*>(&mcast_ttl), sizeof(mcast_ttl)) != -1);
+        return(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<void*>(&mcast_ttl), sizeof(mcast_ttl)) != -1);
     }
-    
-    
 
     //TODO: Refactor method. Break it into utp, tcp, listening, sending. SRP bro
     auto createSocket(Logger &logger, const std::string &t_ip, const std::string &iface, int port, bool is_udp, 
@@ -83,7 +81,7 @@ namespace Common{
         
         const auto ip = t_ip.empty() ? getIfaceIP(iface) : t_ip;
 
-        logger.log("%:% %() % ip:% iface:% poty:% isUdp:% isBlocking:% isListening:% ttl:% SO_time:%",
+        logger.log("%:% %() % ip:% iface:% poty:% isUdp:% isBlocking:% isListening:% ttl:% SO_time:%\n",
                 __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str), ip, iface, port, is_udp, is_blocking, is_listening, ttl, needs_so_timestamp);
 
         addrinfo hints {};
@@ -113,7 +111,7 @@ namespace Common{
             fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 
             if(fd == -1) {
-                logger.log("socket() failed. errno:%", strerror(errno));
+                logger.log("socket() failed. errno:%\n", strerror(errno));
                 return -1;
             } 
 
@@ -121,19 +119,19 @@ namespace Common{
             // We have to set non-blocking and delay before connect() !
             if(!is_blocking){
                 if(!setNonBlocking(fd)){
-                    logger.log("setNonBlocking() failed. errno:%", strerror(errno));
+                    logger.log("setNonBlocking() failed. errno:%\n", strerror(errno));
                     return -1;
                 }
                 // Not for UDP because it does not have Nagle;s Algo
                 if(!is_udp && !setNoDelay(fd)){
-                    logger.log("setNoDelay() failed. errno:%", strerror(errno));
+                    logger.log("setNoDelay() failed. errno:%\n", strerror(errno));
                     return -1;
                 }
             }
 
             // Is not server and was able to connect = ok
             if(!is_listening && connect(fd, rp->ai_addr, rp->ai_addrlen) == 1 && !wouldBlock()) {
-                logger.log("connect() failed. errno:%", strerror(errno));
+                logger.log("connect() failed. errno:%\n", strerror(errno));
                 return -1;
             }
 
@@ -145,30 +143,30 @@ namespace Common{
 
             //Is server, was able to bind = ok
             if(is_listening && bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-                logger.log("bind() failed. errno:%", strerror(errno));
+                logger.log("bind() failed. errno:%\n", strerror(errno));
                 return -1;
             }
 
             // If not udp and is server, then listen
             if(!is_udp && is_listening && listen(fd, MaxTCPServerBacklog) == -1){
-                logger.log("listen() failed. errno:%", strerror(errno));
+                logger.log("listen() failed. errno:%\n", strerror(errno));
                 return -1;
             }
 
             if(is_udp && ttl){
                 const bool is_multicast = atoi(ip.c_str()) & 0xe0;
                 if(is_multicast && !setMcastTTL(fd, ttl)){
-                    logger.log("setMcastTTL() failed. errno:%", strerror(errno));
+                    logger.log("setMcastTTL() failed. errno:%\n", strerror(errno));
                     return -1;
                 }
                 if(!is_multicast && !setTTL(fd, ttl)){
-                    logger.log("setMcastTTL() failed. errno:%", strerror(errno));
+                    logger.log("setTTL() failed. errno:%\n", strerror(errno));
                     return -1;
                 }
             }
 
             if(needs_so_timestamp && !setSOTimestamp(fd)){
-                logger.log("setSOTimestamp() failed. errno:%", strerror(errno));
+                logger.log("setSOTimestamp() failed. errno:%\n", strerror(errno));
                 return -1;
             }
         }

@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "market_data_publisher.h"
 
 namespace Exchange{
@@ -16,7 +18,7 @@ namespace Exchange{
             incremental_socket_(logger_)
     {
         ASSERT(incremental_socket_.init(incremental_ip, iface, incremental_port, /*is_listening*/ false) >= 0, 
-            "Unable to create incremental mcast socket. error:" /*+ std::string(std::strerror(errno))*/);
+            "Unable to create incremental mcast socket. error:" + std::string(std::strerror(errno)));
         snapshot_synthesizer_ = new SnapshotSynthesizer(&snapshot_updates_, iface, snapshot_ip, snapshot_port);
     }
 

@@ -86,7 +86,7 @@ namespace Exchange{
             }
         };
 
-        logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_start_msg.toString());
+        logger_.log("%:% %() % %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_start_msg.toString());
 
         snapshot_socket_.send(&snapshot_start_msg, sizeof(MDPMarketUpdate));
 
@@ -99,7 +99,7 @@ namespace Exchange{
             me_market_update.tickerId_ = tickerId;
 
             const MDPMarketUpdate clear_market_update{snapshot_size++, me_market_update};
-            logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), clear_market_update.toString());
+            logger_.log("%:% %() % %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), clear_market_update.toString());
 
             snapshot_socket_.send(&clear_market_update, sizeof(MDPMarketUpdate));
             
@@ -107,7 +107,7 @@ namespace Exchange{
             for(const auto order : orders){
                 if(order){
                     const MDPMarketUpdate order_market_update {snapshot_size++, *order };
-                    logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), order_market_update.toString());
+                    logger_.log("%:% %() % %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), order_market_update.toString());
 
                     snapshot_socket_.send(&order_market_update, sizeof(MDPMarketUpdate));
                     snapshot_socket_.sendAndRecv();
@@ -123,23 +123,23 @@ namespace Exchange{
             }
         };
 
-        logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
+        logger_.log("%:% %() % %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
 
         snapshot_socket_.send(&snapshot_end_msg, sizeof(MDPMarketUpdate));
         snapshot_socket_.sendAndRecv();
 
-        logger_.log("%:% %() % Published snapshot\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
+        logger_.log("%:% %() % Published snapshot: %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), snapshot_end_msg.toString());
     }
 
     auto SnapshotSynthesizer::run() noexcept -> void{
-        logger_.log("%:% %()\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_));
+        logger_.log("%:% %() %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_));
 
         // Main loop for SnapshotSynthesizer
         while(is_running){
             for(auto marker_update = snapshot_marker_updates_->getNextToRead(); 
                     snapshot_marker_updates_->size() && marker_update; 
                     marker_update = snapshot_marker_updates_->getNextToRead()){
-                logger_.log("%:% %() Processing market update: %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), marker_update->toString());
+                logger_.log("%:% %() % Processing market update: %\n", __FILE__, __LINE__, __FUNCTION__, getCurrentTimeStr(&time_str_), marker_update->toString());
 
                 addToSnapshot(marker_update);
                 snapshot_marker_updates_->updateReadIndex();
