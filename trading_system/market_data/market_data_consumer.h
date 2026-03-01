@@ -52,6 +52,8 @@ namespace TradingSystem {
         auto stop() -> void{
             is_running_ = false;
         }
+
+        auto recvCallback(MulticastSocket* socket) noexcept -> void;
     };
 
     // map is not optimized for lookups, but we need to store updates 

@@ -5,8 +5,7 @@ namespace Exchange
     std::string maching_engine_log_filename = "maching_engine.log";
 
     MatchingEngine::MatchingEngine(ClientRequestLFQueue* client_requests, 
-        ClientResponseLFQueue* client_responses, 
-        MarketDataLFQueue* market_updates)
+        ClientResponseLFQueue* client_responses, MarketDataLFQueue* market_updates)
         : incoming_requests_(client_requests), outgoing_responses_(client_responses), 
         outgoing_market_updates_(market_updates), logger_(maching_engine_log_filename)
         {
