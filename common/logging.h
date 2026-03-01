@@ -68,7 +68,7 @@ namespace Common {
         }
 
         // explicit - to prevent from implicite coversion for ctor with one param
-        explicit Logger(std::string &file_name) : file_name_(file_name), queue_(LOG_QUEUE_SIZE) {
+        explicit Logger(const std::string &file_name) : file_name_(file_name), queue_(LOG_QUEUE_SIZE) {
             file_.open(file_name_);
             ASSERT(file_.is_open(), "Could not open log file: " + file_name_);
 
