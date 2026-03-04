@@ -13,6 +13,7 @@ add_subdirectory(common)
 add_subdirectory(exchange)
 add_subdirectory(tests)
 add_subdirectory(benchmarks)
+add_subdirectory(trading_system)
 
 target_link_libraries(exchange
     PRIVATE
