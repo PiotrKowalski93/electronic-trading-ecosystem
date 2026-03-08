@@ -119,7 +119,6 @@ namespace TradingSystem {
                 logger_.log("%:% %() % Packages drops on snapshot socket.\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
                 snapshot_queued_market_updates_.clear();
             }
-
             snapshot_queued_market_updates_[request->seq_num] = request->me_market_update;
         } else{
             incremental_queued_market_updates_[request->seq_num] = request->me_market_update;
@@ -212,8 +211,7 @@ namespace TradingSystem {
 
         while(is_running_){
             incremental_mcast_socket_.sendAndRecv();
-            
-            //snapshot_mcast_socket_.sendAndRecv();
+            snapshot_mcast_socket_.sendAndRecv();
         }        
     }
 }

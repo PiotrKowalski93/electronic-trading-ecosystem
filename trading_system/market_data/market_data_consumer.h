@@ -60,6 +60,4 @@ namespace TradingSystem {
         auto queueMessage(bool is_snapshot, const Exchange::MDPMarketUpdate* request) -> void;
         auto checkSnapshotSync() -> void;
     };
-
-    
 }
