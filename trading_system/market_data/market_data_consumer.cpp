@@ -2,6 +2,117 @@
 
 namespace TradingSystem {
     
+    auto MarketDataConsumer::checkSnapshotSync() -> void{
+        // Check if there are any snapshot messages
+        if(snapshot_queued_market_updates_.empty()){
+            return;
+        }
+
+        // Check if we have SNAPSHOT_START, if not, clear and wait for next
+        const auto &first_snapshot_msq = snapshot_queued_market_updates_.begin()->second;
+        if(first_snapshot_msq.type_ != Exchange::MarketUpdateType::SNAPSHOT_START){
+            logger_.log("%:% %() % Returning because there is no SNAPSHOT_START yet.\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
+            return;
+        }
+
+        // Check if there is no gap in snapshot messages
+        std::vector<Exchange::MEMarketUpdate> final_events;
+
+        auto is_snapshot_complete = true;
+        size_t next_snapshot_msq_seq = 0;
+
+        // TODO: Use ptr iterator??
+        for(auto &msg_pair : snapshot_queued_market_updates_){
+            logger_.log("%:% %() % % => %\n", __FILE__, __LINE__, __FUNCTION__, 
+                Common::getCurrentTimeStr(&time_str_), msg_pair.first, msg_pair.second.toString());
+            
+            // Checking if there is a gap
+            if(msg_pair.first != next_update_seq_num_){
+                is_snapshot_complete = false;
+                logger_.log("%:% %() % Gap in snapshot detectec. Seq: %, should be: %\n", __FILE__, __LINE__, __FUNCTION__, 
+                    Common::getCurrentTimeStr(&time_str_), msg_pair.first, next_update_seq_num_);
+                break;
+            }
+
+            // No Gap, add to final collection
+            if(msg_pair.second.type_ != Exchange::MarketUpdateType::SNAPSHOT_START 
+                && msg_pair.second.type_ != Exchange::MarketUpdateType::SNAPSHOT_END)
+            {
+                final_events.push_back(msg_pair.second);
+                next_snapshot_msq_seq++;
+            }
+        }
+
+        // After loop, check if we have complete snapshot
+        if(!is_snapshot_complete){
+            logger_.log("%:% %() % Found gaps in snapshot. Clearing queue\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
+
+            snapshot_queued_market_updates_.clear();
+            return;
+        }
+
+        // At the end, check if last message is SNAPSHOT_END
+        const auto &last_snapshot_msg = snapshot_queued_market_updates_.rbegin()->second;
+        if(last_snapshot_msg.type_ != Exchange::MarketUpdateType::SNAPSHOT_END){
+            logger_.log("%:% %() % We dont have SNAPSHOT_END yet\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
+            return;
+        }
+
+        // Inspect incremental messages
+        auto is_incremental_complete = true;
+        auto next_incremental_msq_seq = last_snapshot_msg.orderId_ + 1;
+        size_t incremental_msg_count = 0;
+
+        // TODO: Use ptr iterator??
+        for(auto &msg_pair: incremental_queued_market_updates_){
+            logger_.log("%:% %() % Incremental msq's inspection. Next seq: % vs current: %, msq: %\n", __FILE__, __LINE__, __FUNCTION__, 
+                Common::getCurrentTimeStr(&time_str_), next_incremental_msq_seq, msg_pair.first, msg_pair.second.toString());
+
+            // We take only those msq that seq number is after last snapshot
+            if(msg_pair.first < next_incremental_msq_seq){
+                continue;
+            }
+
+            if(msg_pair.first != next_incremental_msq_seq){
+                logger_.log("%:% %() % Gap in incremental queue\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
+                is_incremental_complete = false;
+                break;
+            }
+
+            // We can add it to final events collection
+            if(msg_pair.second.type_ != Exchange::MarketUpdateType::SNAPSHOT_START 
+                && msg_pair.second.type_ != Exchange::MarketUpdateType::SNAPSHOT_END)
+            {
+                final_events.push_back(msg_pair.second);
+                next_incremental_msq_seq++;
+                incremental_msg_count++;
+            }
+        }
+
+        if(!is_incremental_complete){
+            logger_.log("%:% %() % Gap in incremental queue\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_));
+            snapshot_queued_market_updates_.clear();
+            return;
+        }
+
+        // Pass events to queue for Trading Engine
+        for(const auto &itr: final_events){
+            auto next_write = incoming_marked_updates_->getNextToWriteTo();
+            *next_write = itr;
+            incoming_marked_updates_->updateNextToWriteTo();
+        }
+
+        logger_.log("%:% %() % Recovered % snapshot and % incremental msgs\n", __FILE__, __LINE__, 
+            __FUNCTION__, Common::getCurrentTimeStr(&time_str_), snapshot_queued_market_updates_.size(), next_snapshot_msq_seq);
+        
+        // Cleaning after recovery
+        snapshot_queued_market_updates_.clear();
+        incremental_queued_market_updates_.clear();
+        in_recovery_mode_ = false;
+        
+        snapshot_mcast_socket_.leave(snapshot_mcast_ip_, snapshot_mcast_port_);
+    }
+
     auto MarketDataConsumer::queueMessage(bool is_snapshot, const Exchange::MDPMarketUpdate* request) -> void{
         if(is_snapshot){
             if(snapshot_queued_market_updates_.find(request->seq_num) != snapshot_queued_market_updates_.end()){
@@ -14,7 +125,7 @@ namespace TradingSystem {
             incremental_queued_market_updates_[request->seq_num] = request->me_market_update;
         }
 
-        // checkSnapshotSync();
+        checkSnapshotSync();
     }
 
     auto MarketDataConsumer::startSnapshotSync() -> void{

@@ -57,7 +57,8 @@ namespace TradingSystem {
 
         auto recvCallback(MulticastSocket* socket) noexcept -> void;
         auto startSnapshotSync() -> void;
-        auto queueMessage(bool is_snapshot, const Exchange::MDPMarketUpdate* request)->void;
+        auto queueMessage(bool is_snapshot, const Exchange::MDPMarketUpdate* request) -> void;
+        auto checkSnapshotSync() -> void;
     };
 
     
