@@ -161,6 +161,7 @@ namespace TradingSystem {
                         logger_.log("%:% %() % Packed drops on socket %. SeqNum expected: % recieved: %\n", __FILE__, __LINE__, __FUNCTION__, Common::getCurrentTimeStr(&time_str_), 
                         socket->socket_fd_, next_update_seq_num_, request->seq_num);
 
+                        // Not in recovery mode - need to join mcast for snapshot
                         startSnapshotSync();
                     }
                     queueMessage(is_snapshot, request);
