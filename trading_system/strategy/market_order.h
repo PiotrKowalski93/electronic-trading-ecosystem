@@ -1,12 +1,13 @@
 #pragma once
 
-#include "market_order_book.h"
 #include "common_types.h"
+
+#include <array>
+#include <sstream>
 
 using namespace Common;
 
 namespace TradingSystem{
-
     // We use struct bcs it is Plain Data Structure
     // structures like this are used via memory pool
     struct MarketOrder{
@@ -30,5 +31,34 @@ namespace TradingSystem{
         auto toString() const -> std::string;
     };
 
-    typedef std::array<MarketOrderBook*, ME_MAX_TICKERS> MarketOrderBookHashMap;
+    struct MarketOrderPriceLevel{
+        Side side_ = Side::INVALID;
+        Price price_ = Price_INVALID;
+
+        MarketOrder* first_order_ = nullptr;
+
+        MarketOrderPriceLevel* prev_level_ = nullptr;
+        MarketOrderPriceLevel* next_level_ = nullptr;
+
+        MarketOrderPriceLevel() = default;
+        MarketOrderPriceLevel(Side side, Price price, MarketOrder* first_order, MarketOrderPriceLevel* prev_level, MarketOrderPriceLevel* next_level)
+            : side_(side), price_(price), first_order_(first_order), prev_level_(prev_level), next_level_(next_level){}
+
+        auto toString() const -> std::string;
+    };
+
+    // The Best Bid and Offer (BBO) represents the highest available buying price (bid) and the lowest available selling price (ask/offer) 
+    // for an asset at any given moment
+    struct BestBidOffer {
+        Price bid_price_ = Price_INVALID;
+        Qty bid_qty_ = Price_INVALID;
+
+        Price ask_price_ = Price_INVALID;
+        Qty ask_qty_ = Price_INVALID;
+
+        auto toString() const -> std::string;
+    };
+
+    typedef std::array<MarketOrder*, ME_MAX_ORDER_IDS> MarketOrderHashMap;
+    typedef std::array<MarketOrderPriceLevel*, ME_MAX_PRICE_LEVELS> MarketOrderPriceLevelsHashMap;
 };
