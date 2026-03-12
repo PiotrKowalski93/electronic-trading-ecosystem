@@ -3,18 +3,22 @@
 #include "logging.h"
 #include "mem_pool.h"
 #include "market_order.h"
+#include "market_update.h"
 
 namespace TradingSystem{
     class TradeEngine;
     
     class MarketOrderBook final {
 
-        MarketOrderBook();
+        MarketOrderBook(TickerId tickerId, Logger* logger);
         ~MarketOrderBook();
+
+        auto setTradeEngine(TradeEngine* trade_engine) -> void;
+        auto onMarketUpdate(const Exchange::MEMarketUpdate* marketUpdate) noexcept -> void;
 
         private:
             // Order book is keept ber ticker - ex AAPL
-            const TickerId tickeId;
+            const TickerId tickeId_;
 
             TradeEngine* trade_engine_ = nullptr;
 
