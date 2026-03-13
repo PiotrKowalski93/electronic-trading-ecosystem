@@ -15,6 +15,42 @@ namespace TradingSystem{
         trade_engine_ = trade_engine;
     }
 
+    auto MarketOrderBook::updateBBO(const bool update_bid, const bool update_ask) -> void{
+        if(update_bid){
+            if(bid_price_levels_){
+                best_offer_.bid_price_ = bid_price_levels_->price_;
+                best_offer_.bid_qty_ = bid_price_levels_->first_order_->qty_;
+
+                for(auto& order = bid_price_levels_->first_order_->next_order_;
+                        order != bid_price_levels_->first_order_;
+                        order = order->next_order_){
+                    best_offer_.bid_qty_ += order->qty_;
+                }
+            }
+            else {
+                best_offer_.bid_price_ = Price_INVALID;
+                best_offer_.bid_qty_ = Qty_INVALID;
+            }
+        }
+
+        if(update_ask){
+            if(ask_price_levels_){
+                best_offer_.ask_price_ = ask_price_levels_->price_;
+                best_offer_.ask_qty_ = ask_price_levels_->first_order_->qty_;
+
+                for(auto& order = ask_price_levels_->first_order_->next_order_;
+                        order != ask_price_levels_->first_order_;
+                        order = order->next_order_){
+                    best_offer_.ask_qty_ += order->qty_;
+                }
+            }
+            else {
+                best_offer_.ask_price_ = Price_INVALID;
+                best_offer_.ask_qty_ = Qty_INVALID;
+            }
+        }
+    }
+
     auto MarketOrderBook::onMarketUpdate(const Exchange::MEMarketUpdate* market_update) noexcept -> void{
 
         // Check if we have to update BBO
@@ -79,6 +115,9 @@ namespace TradingSystem{
                 break;
         }
 
-        //updateBBO(best_bid_updated, best_ask_updated);
+        updateBBO(best_bid_updated, best_ask_updated);
+
+        // trade_engine_->onOrderBookUpdate
+        // LOG
     }
 }

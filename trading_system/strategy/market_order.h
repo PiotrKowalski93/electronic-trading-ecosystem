@@ -31,6 +31,8 @@ namespace TradingSystem{
         auto toString() const -> std::string;
     };
 
+    // TODO: Refacor to store sum_qty and order_count per Price level
+    // it is good performance fix
     struct MarketOrderPriceLevel{
         Side side_ = Side::INVALID;
         Price price_ = Price_INVALID;
