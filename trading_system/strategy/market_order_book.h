@@ -15,7 +15,6 @@ namespace TradingSystem{
 
         auto setTradeEngine(TradeEngine* trade_engine) -> void;
         auto onMarketUpdate(const Exchange::MEMarketUpdate* marketUpdate) noexcept -> void;
-        auto updateBBO(const bool update_bid, const bool update_ask) -> void;
 
         private:
             // Order book is keept ber ticker - ex AAPL
@@ -38,6 +37,20 @@ namespace TradingSystem{
 
             std::string time_str_;
             Logger* logger_ = nullptr;
+
+            auto updateBBO(const bool update_bid, const bool update_ask) -> void;
+
+            // Get
+            auto getOrdersAtPriceLevel(Price price) const noexcept -> MarketOrderPriceLevel;
+            auto priceToIndex(Price price) const noexcept;
+
+            // Add
+            auto addOrder(MarketOrder* order) noexcept -> void;
+            auto addOrdersAtPriceLevel(MarketOrderPriceLevel* price_level) noexcept -> void;
+
+            // Delete
+            auto removeOrder(MarketOrder* order) noexcept -> void;
+            auto removeOrdersAtPriceLevel(Side side, Price price) noexcept -> void;
     };
 
     typedef std::array<MarketOrderBook*, ME_MAX_TICKERS> MarketOrderBooksHashMap;

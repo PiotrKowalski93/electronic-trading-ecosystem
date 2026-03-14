@@ -19,13 +19,7 @@ namespace TradingSystem{
         if(update_bid){
             if(bid_price_levels_){
                 best_offer_.bid_price_ = bid_price_levels_->price_;
-                best_offer_.bid_qty_ = bid_price_levels_->first_order_->qty_;
-
-                for(auto& order = bid_price_levels_->first_order_->next_order_;
-                        order != bid_price_levels_->first_order_;
-                        order = order->next_order_){
-                    best_offer_.bid_qty_ += order->qty_;
-                }
+                best_offer_.bid_qty_ = bid_price_levels_->level_qty_;
             }
             else {
                 best_offer_.bid_price_ = Price_INVALID;
@@ -36,13 +30,7 @@ namespace TradingSystem{
         if(update_ask){
             if(ask_price_levels_){
                 best_offer_.ask_price_ = ask_price_levels_->price_;
-                best_offer_.ask_qty_ = ask_price_levels_->first_order_->qty_;
-
-                for(auto& order = ask_price_levels_->first_order_->next_order_;
-                        order != ask_price_levels_->first_order_;
-                        order = order->next_order_){
-                    best_offer_.ask_qty_ += order->qty_;
-                }
+                best_offer_.ask_qty_ = ask_price_levels_->level_qty_;
             }
             else {
                 best_offer_.ask_price_ = Price_INVALID;
@@ -115,6 +103,7 @@ namespace TradingSystem{
                 break;
         }
 
+        // TODO: Can we update BBO while doing operations on BOOK?
         updateBBO(best_bid_updated, best_ask_updated);
 
         // trade_engine_->onOrderBookUpdate

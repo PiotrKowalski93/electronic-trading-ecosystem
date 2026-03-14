@@ -31,9 +31,13 @@ namespace TradingSystem{
         auto toString() const -> std::string;
     };
 
-    // TODO: Refacor to store sum_qty and order_count per Price level
-    // it is good performance fix
     struct MarketOrderPriceLevel{
+
+        // Storing summed qty and orders count per level gives
+        // us faster BBO update
+        Qty level_qty_ = Qty_INVALID;
+        size_t orders_count_ = 0;
+
         Side side_ = Side::INVALID;
         Price price_ = Price_INVALID;
 
@@ -49,8 +53,8 @@ namespace TradingSystem{
         auto toString() const -> std::string;
     };
 
-    // The Best Bid and Offer (BBO) represents the highest available buying price (bid) and the lowest available selling price (ask/offer) 
-    // for an asset at any given moment
+    // The Best Bid and Offer (BBO) represents the highest available buying price (bid) and the lowest available 
+    // selling price (ask/offer) for an asset at any given moment
     struct BestBidOffer {
         Price bid_price_ = Price_INVALID;
         Qty bid_qty_ = Price_INVALID;
