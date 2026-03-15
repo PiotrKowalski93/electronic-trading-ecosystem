@@ -132,6 +132,7 @@ namespace Exchange {
         } else {
             price_level->prev_price_level_->next_price_level_ = price_level->next_price_level_;
             price_level->next_price_level_->prev_price_level_ = price_level->prev_price_level_;
+            
             //If we remove at head, change head
             if(orders_head == price_level){
                 orders_head = price_level->next_price_level_;

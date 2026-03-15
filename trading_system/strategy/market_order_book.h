@@ -38,19 +38,22 @@ namespace TradingSystem{
             std::string time_str_;
             Logger* logger_ = nullptr;
 
-            auto updateBBO(const bool update_bid, const bool update_ask) -> void;
-
             // Get
-            auto getOrdersAtPriceLevel(Price price) const noexcept -> MarketOrderPriceLevel;
-            auto priceToIndex(Price price) const noexcept;
+            auto getPriceLevel(Price price) const noexcept -> MarketOrderPriceLevel*{
+                return orders_at_price_levels_.at(priceToIndex(price));
+            }
+
+            auto priceToIndex(Price price) const noexcept -> unsigned long{
+                return (price % ME_MAX_PRICE_LEVELS);
+            }
 
             // Add
-            auto addOrder(MarketOrder* order) noexcept -> void;
             auto addOrdersAtPriceLevel(MarketOrderPriceLevel* price_level) noexcept -> void;
+            auto addOrder(MarketOrder* order) noexcept -> void;
 
             // Delete
+            auto removePriceLevel(MarketOrderPriceLevel* price_level) noexcept -> void;
             auto removeOrder(MarketOrder* order) noexcept -> void;
-            auto removeOrdersAtPriceLevel(Side side, Price price) noexcept -> void;
     };
 
     typedef std::array<MarketOrderBook*, ME_MAX_TICKERS> MarketOrderBooksHashMap;

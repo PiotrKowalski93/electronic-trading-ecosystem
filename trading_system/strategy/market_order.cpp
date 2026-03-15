@@ -30,9 +30,9 @@ namespace TradingSystem{
     auto BestBidOffer::toString() const -> std::string {
       std::stringstream ss;
       ss << "BBO{"
-         << qtyToString(bid_qty_) << "@" << priceToString(bid_price_)
+         << qtyToString(best_bid_->total_qty_) << "@" << priceToString(best_bid_->price_)
          << "X"
-         << priceToString(ask_price_) << "@" << qtyToString(ask_qty_)
+         << priceToString(best_ask_->total_qty_) << "@" << qtyToString(best_ask_->price_)
          << "}";
 
       return ss.str();

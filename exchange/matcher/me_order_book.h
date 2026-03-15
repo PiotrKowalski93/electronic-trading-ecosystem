@@ -40,8 +40,8 @@ namespace Exchange{
 
         // Price levels are always kept sorted at insertion time.
         // Matching never reorders price levels.
-        // BIDs -> descending
-        // ASKs -> ascending
+        // BIDs -> descending - largest to smallest
+        // ASKs -> ascending - smallest to largest
         MEOrderAtPriceLevel* bid_levels_head_ = nullptr;
         MEOrderAtPriceLevel* ask_levels_head_ = nullptr;
 

@@ -35,7 +35,7 @@ namespace TradingSystem{
 
         // Storing summed qty and orders count per level gives
         // us faster BBO update
-        Qty level_qty_ = Qty_INVALID;
+        Qty total_qty_ = Qty_INVALID;
         size_t orders_count_ = 0;
 
         Side side_ = Side::INVALID;
@@ -56,11 +56,8 @@ namespace TradingSystem{
     // The Best Bid and Offer (BBO) represents the highest available buying price (bid) and the lowest available 
     // selling price (ask/offer) for an asset at any given moment
     struct BestBidOffer {
-        Price bid_price_ = Price_INVALID;
-        Qty bid_qty_ = Price_INVALID;
-
-        Price ask_price_ = Price_INVALID;
-        Qty ask_qty_ = Price_INVALID;
+        MarketOrderPriceLevel* best_bid_ = nullptr;
+        MarketOrderPriceLevel* best_ask_ = nullptr;
 
         auto toString() const -> std::string;
     };
