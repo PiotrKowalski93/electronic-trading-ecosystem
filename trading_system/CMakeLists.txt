@@ -4,12 +4,14 @@ add_library(libtradingsystem STATIC
     market_data/market_data_consumer.cpp
     strategy/market_order.cpp
     strategy/market_order_book.cpp
+    order_gw/order_gateway.cpp
 )
 
 target_include_directories(libtradingsystem
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/market_data
         ${CMAKE_CURRENT_SOURCE_DIR}/strategy
+        ${CMAKE_CURRENT_SOURCE_DIR}/order_gw
 )
 
 target_compile_features(libtradingsystem 
