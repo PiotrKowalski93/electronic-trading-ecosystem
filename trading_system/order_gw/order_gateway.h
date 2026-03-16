@@ -2,13 +2,37 @@
 
 #include "tcp_server.h"
 #include "common_types.h"
+#include "threads.h"
+#include "client_request.h"
+#include "client_response.h"
 
-namespace TradingSystem{
+namespace TradingSystem
+{
+    // Client to Exchange
     class OrderGateway{
+        public:
+            OrderGateway(ClientId client_id, Exchange::ClientRequestLFQueue* outgoing_requests, Exchange::ClientResponseLFQueue* incoming_responses,
+                std::string ip, const std::string iface, const int port);
+            ~OrderGateway();
+
         private:
             const Common::ClientId client_id_;
 
-            
+            // Exchange address info
+            std::string ip_;
+            const std::string iface_;
+            const int port_ = 0;
 
+            Exchange::ClientRequestLFQueue* outgoing_requests_ = nullptr;
+            Exchange::ClientResponseLFQueue* incoming_responses_ = nullptr;
+
+            std::atomic<bool> is_running_;
+
+            std::string time_str_;
+            Logger logger_;
+
+            size_t next_outgoing_seq_num_ = 1;
+            size_t next_exp_response_seq_num_ = 1;
+            Common::TCPSocket tcp_socket_;
     };
 }
