@@ -54,5 +54,7 @@ namespace TradingSystem
             auto stop() -> void {
                 is_running_ = false;
             }
+
+            auto recvCallback(TCPSocket* socket, Nanos rx_time) noexcept -> void;       
     };
 }
