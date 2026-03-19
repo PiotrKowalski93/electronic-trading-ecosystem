@@ -29,11 +29,31 @@ namespace Common {
     typedef uint64_t Priority;
     constexpr auto Priority_INVALID = std::numeric_limits<Priority>::max();
 
+    // SIDE ------
     enum class Side : uint8_t {
         INVALID = 0,
         BUY = 1,
         SELL = 2
     };
+
+    // book Side?
+    // enum class Side : int8_t {
+    //     INVALID = 0,
+    //     BUY = 1,
+    //     SELL = -1,
+    //     MAX = 2
+    // };
+
+    //removed inline, constexpr = inline
+    constexpr auto sideToIndex(Side side) noexcept {
+        return static_cast<size_t>(side) + 1;
+    }
+
+    constexpr auto sideToValue(Side side) noexcept {
+        return static_cast<int>(side);
+    }
+
+    // -----------
 
     inline auto orderIdToString(OrderId orderId) -> std::string {
         if(UNLIKELY(orderId == OrderId_INVALID)) return _INVALID; 
