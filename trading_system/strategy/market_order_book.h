@@ -10,12 +10,14 @@ namespace TradingSystem{
     class TradeEngine;
     
     class MarketOrderBook final {
-
-        MarketOrderBook(TickerId tickerId, Logger* logger);
-        ~MarketOrderBook();
-
-        auto setTradeEngine(TradeEngine* trade_engine) -> void;
-        auto onMarketUpdate(const Exchange::MEMarketUpdate* marketUpdate) noexcept -> void;
+        public: 
+            MarketOrderBook(TickerId tickerId, Logger* logger);
+            ~MarketOrderBook();
+        
+            auto setTradeEngine(TradeEngine* trade_engine) -> void;
+            auto onMarketUpdate(const Exchange::MEMarketUpdate* marketUpdate) noexcept -> void;
+        
+            auto getBBO() noexcept -> BestBidOffer*;
 
         private:
             // Order book is keept ber ticker - ex AAPL

@@ -206,4 +206,8 @@ namespace TradingSystem{
         // trade_engine_->onOrderBookUpdate
         // LOG
     }
+
+    auto MarketOrderBook::getBBO() noexcept -> BestBidOffer*{
+        return &best_offer_;
+    }
 }
