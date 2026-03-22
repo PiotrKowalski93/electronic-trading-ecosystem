@@ -207,7 +207,9 @@ namespace TradingSystem{
         // LOG
     }
 
-    auto MarketOrderBook::getBBO() noexcept -> BestBidOffer*{
+    // const noexcept -> does not change class fields
+    // const BestBidOffer* -> returns type that cannot be changed
+    auto MarketOrderBook::getBBO() const noexcept -> const BestBidOffer*{
         return &best_offer_;
     }
 }

@@ -30,19 +30,19 @@ namespace Common {
     constexpr auto Priority_INVALID = std::numeric_limits<Priority>::max();
 
     // SIDE ------
-    enum class Side : uint8_t {
-        INVALID = 0,
-        BUY = 1,
-        SELL = 2
-    };
-
-    // book Side?
-    // enum class Side : int8_t {
+    // enum class Side : uint8_t {
     //     INVALID = 0,
     //     BUY = 1,
-    //     SELL = -1,
-    //     MAX = 2
+    //     SELL = 2
     // };
+
+    // book Side?
+    enum class Side : int8_t {
+        INVALID = 0,
+        BUY = 1,
+        SELL = -1,
+        MAX = 2
+    };
 
     //removed inline, constexpr = inline
     constexpr auto sideToIndex(Side side) noexcept {

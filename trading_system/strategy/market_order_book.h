@@ -17,7 +17,7 @@ namespace TradingSystem{
             auto setTradeEngine(TradeEngine* trade_engine) -> void;
             auto onMarketUpdate(const Exchange::MEMarketUpdate* marketUpdate) noexcept -> void;
         
-            auto getBBO() noexcept -> BestBidOffer*;
+            auto getBBO() const noexcept -> const BestBidOffer*;
 
         private:
             // Order book is keept ber ticker - ex AAPL

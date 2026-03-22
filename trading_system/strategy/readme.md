@@ -4,7 +4,7 @@
 
 A Feature Engine is a component that transforms raw market data into numerical signals (*features*) used by a trading strategy.
 
-Market Data → Feature Engine → Strategy → Orders -> Order Gateway
+Market Data -> Feature Engine -> Strategy ->  Orders -> Order Gateway
 
 Without it, the strategy operates on raw events.  
 With it, the strategy operates on a structured representation of market state.
