@@ -20,6 +20,10 @@ namespace TradingSystem{
         Qty volume_;
         const BestBidOffer* bbo_ = nullptr;
 
+        auto addFill() -> void{
+            //TODO: Implement after you understand VWAP and open_VWAP calculations
+        }
+
         auto toString() const {
             std::stringstream ss;
             ss << "Position{"
