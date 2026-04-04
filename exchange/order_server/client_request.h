@@ -42,7 +42,6 @@ namespace Exchange {
         OrderId orderId_ = OrderId_INVALID;
         Price price_ = Price_INVALID;
         Qty qty_ = Qty_INVALID;
-        Priority priority = Priority_INVALID;
         Side side_ = Side::INVALID;
 
         auto toString() const {

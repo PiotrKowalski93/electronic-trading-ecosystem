@@ -7,7 +7,10 @@
 
 namespace TradingSystem{
     // TODO: To implement
-    class TradeEngine;
+    class TradeEngine{
+        public:
+            ClientId clientId_;
+    };
     
     class MarketOrderBook final {
         public: 

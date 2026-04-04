@@ -2,6 +2,7 @@
 
 #include "market_order_book.h"
 #include "order_manager_order.h"
+#include "macros.h"
 
 namespace TradingSystem{
     class OrderManager{
@@ -13,7 +14,7 @@ namespace TradingSystem{
             // Returns BUY/SELL orders for given ticker
             auto getOMOrderSideHashMap(TickerId ticker_id) const {
                 return &(ticker_orders_.at(ticker_id));
-            }
+            };
 
         private:
             TradeEngine* trade_engine_ = nullptr;
@@ -24,5 +25,9 @@ namespace TradingSystem{
 
             OMOrderTickerSideHashMap ticker_orders_;
             OrderId next_orderId_ = 1;
+
+            auto newOrder(OMOrder* order, TickerId tickerId, Price price, Side side, Qty qty) noexcept -> void;
+            auto cancelOrder(OMOrder* order) noexcept -> void;
+            auto moveOrder(OMOrder* order, TickerId tickerId, Price price, Side side, Qty qty) noexcept;
     };
 }
