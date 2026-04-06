@@ -1,5 +1,5 @@
 #include "order_manager.h"
-#include "client_request.h"
+
 
 namespace TradingSystem {
 
@@ -43,7 +43,7 @@ namespace TradingSystem {
                  cancel_request.toString().c_str(), order->toString().c_str());
     }
 
-    auto OrderManager::moveOrder(OMOrder* order, TickerId tickerId, Price price, Side side, Qty qty) noexcept{
+    auto OrderManager::moveOrder(OMOrder* order, TickerId tickerId, Price price, Side side, Qty qty) noexcept -> void{
         switch (order->order_state_)
         {
             case OMOrderState::LIVE: {

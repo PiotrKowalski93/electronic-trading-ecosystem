@@ -179,7 +179,7 @@ namespace Exchange {
                 client_response_ = { ClientResponseType::CANCEL_REJECTED, clientId, tickerId, client_orderId, 
                     OrderId_INVALID, Side::INVALID, Price_INVALID, Qty_INVALID, Qty_INVALID };
             }else{
-                client_response_ = { ClientResponseType::CANCELLED, clientId, tickerId, client_orderId, 
+                client_response_ = { ClientResponseType::CANCELED, clientId, tickerId, client_orderId, 
                     order_to_cancel->market_orderId_, order_to_cancel->side_, order_to_cancel->price_, Qty_INVALID, order_to_cancel->qty_ };
 
                 market_update_ = { MarketUpdateType::CANCEL, client_orderId, tickerId, 

@@ -4,8 +4,8 @@ add_library(libtradingsystem STATIC
     market_data/market_data_consumer.cpp
     strategy/market_order.cpp
     strategy/market_order_book.cpp
-    strategy/order_manager.cpp
     strategy/feature_engine.cpp
+    strategy/order_manager.cpp
     order_gw/order_gateway.cpp
 )
 
