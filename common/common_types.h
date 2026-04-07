@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <limits>
 #include <iostream>
+#include <sstream>
 
 #include "constraints.h"
 #include "macros.h"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common_types.h"
+#include "position_keeper.h"
 
 namespace TradingSystem{
 
@@ -29,4 +30,52 @@ namespace TradingSystem{
         return "";
     }
 
+    struct RiskInfo {
+        const PositionInfo *position_info_ = nullptr;
+        RiskCfg risk_cfg_;
+
+        RiskCheckResult checkPreTradeRisk(Side side, Qty qty) const noexcept {
+            if (UNLIKELY(qty > risk_cfg_.max_order_size_)) 
+                return RiskCheckResult::ORDER_TOO_LARGE;
+            if (UNLIKELY(std::abs(position_info_->position_ + sideToValue(side) * static_cast<int32_t>(qty)) > static_cast<int32_t>(risk_cfg_.max_position_)))
+                return RiskCheckResult::POSITION_TOO_LARGE;
+            if (UNLIKELY(position_info_->total_PnL_ < risk_cfg_.max_loss_))
+                return RiskCheckResult::LOSS_TOO_LARGE;
+
+            return RiskCheckResult::ALLOWED;
+        }
+
+        auto toString() const {
+            std::stringstream ss;
+            ss << "RiskInfo" << "["
+                << "pos:" << position_info_->toString() << " "
+                << risk_cfg_.toString()
+                << "]";
+
+            return ss.str();
+        }
+    };
+
+    typedef std::array<RiskInfo, ME_MAX_TICKERS> TickerRiskInfoHashMap;
+
+    class RiskManager {
+        public:
+            RiskManager(Common::Logger *logger, const PositionKeeper *position_keeper, const TradeEngineCfgHashMap &ticker_cfg);
+
+            RiskCheckResult checkPreTradeRisk(TickerId ticker_id, Side side, Qty qty) const noexcept {
+                return ticker_risk_.at(ticker_id).checkPreTradeRisk(side, qty);
+            }
+
+            RiskManager() = delete;
+            RiskManager(const RiskManager &) = delete;
+            RiskManager(const RiskManager &&) = delete;
+            RiskManager &operator=(const RiskManager &) = delete;
+            RiskManager &operator=(const RiskManager &&) = delete;
+
+        private:
+            std::string time_str_;
+            Common::Logger *logger_ = nullptr;
+
+            TickerRiskInfoHashMap ticker_risk_;
+    };
 }
