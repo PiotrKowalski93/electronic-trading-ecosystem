@@ -6,6 +6,7 @@ add_library(libtradingsystem STATIC
     strategy/market_order_book.cpp
     strategy/feature_engine.cpp
     strategy/order_manager.cpp
+    strategy/risk_manager.cpp
     order_gw/order_gateway.cpp
 )
 
